@@ -1,0 +1,209 @@
+name: Build lrclib synced-only DB
+# lrclib の公式ダンプから syncedLyrics のみ抽出し、
+# 軽量 SQLite DB を Brotli 圧縮して GitHub Releases にアップロードする
+
+on:
+  schedule:
+    - cron: "0 6 1 * *" # 毎月1日 06:00 UTC
+  workflow_dispatch: # 手動実行
+    inputs:
+      dump_url:
+        description: "lrclib dump URL (空欄なら最新を自動取得)"
+        required: false
+        default: ""
+
+jobs:
+  build-lrclib-synced:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180 # 3時間タイムアウト
+
+    steps:
+      # -------------------------------------------------------
+      # 1. ディスク容量の確保
+      #    プリインストール済みの不要パッケージを削除して
+      #    約50-60GBの空きを作る
+      # -------------------------------------------------------
+      - name: Free disk space
+        run: |
+          echo "=== Before cleanup ==="
+          df -h /
+          df -h /mnt || true
+
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/share/swift
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /usr/local/graalvm
+          sudo rm -rf /usr/local/share/chromium
+          sudo rm -rf /usr/local/share/powershell
+          sudo rm -rf /opt/hostedtoolcache
+          sudo docker system prune -af || true
+          sudo apt-get clean
+
+          echo "=== After cleanup ==="
+          df -h /
+          df -h /mnt || true
+
+      # -------------------------------------------------------
+      # 2. 必要ツールのインストール
+      # -------------------------------------------------------
+      - name: Install tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq sqlite3 brotli
+
+      # -------------------------------------------------------
+      # 3. lrclib ダンプのダウンロード
+      # -------------------------------------------------------
+      - name: Determine dump URL
+        id: dump-url
+        run: |
+          if [ -n "${{ github.event.inputs.dump_url }}" ]; then
+            echo "url=${{ github.event.inputs.dump_url }}" >> $GITHUB_OUTPUT
+          else
+            # lrclib のダンプページから最新のURLを取得
+            # ページ構造が変わった場合は手動入力にフォールバック
+            DUMP_URL=$(curl -sL https://lrclib.net/db-dumps \
+              | grep -oP 'href="\K[^"]*\.sqlite3\.gz' \
+              | head -1)
+            if [ -z "$DUMP_URL" ]; then
+              echo "::error::ダンプURLを自動取得できませんでした。手動で指定してください。"
+              exit 1
+            fi
+            # 相対URLの場合は絶対URLに変換
+            if [[ ! "$DUMP_URL" == http* ]]; then
+              DUMP_URL="https://lrclib.net${DUMP_URL}"
+            fi
+            echo "url=$DUMP_URL" >> $GITHUB_OUTPUT
+          fi
+          echo "Dump URL: $(cat $GITHUB_OUTPUT | grep url)"
+
+      - name: Download dump
+        run: |
+          echo "Downloading from: ${{ steps.dump-url.outputs.url }}"
+          # /mnt に十分な空きがあればそちらを使う
+          WORK_DIR="/mnt"
+          if [ $(df --output=avail /mnt | tail -1) -lt 10000000 ]; then
+            WORK_DIR="/tmp/lrclib-work"
+            mkdir -p "$WORK_DIR"
+          fi
+          echo "WORK_DIR=$WORK_DIR" >> $GITHUB_ENV
+
+          wget -q --show-progress -O "$WORK_DIR/dump.sqlite3.gz" \
+            "${{ steps.dump-url.outputs.url }}"
+          ls -lh "$WORK_DIR/dump.sqlite3.gz"
+          echo "=== Disk after download ==="
+          df -h /
+          df -h /mnt || true
+
+      # -------------------------------------------------------
+      # 4. 展開
+      # -------------------------------------------------------
+      - name: Decompress dump
+        run: |
+          cd "$WORK_DIR"
+          echo "Decompressing (this may take a while)..."
+          gunzip dump.sqlite3.gz
+          ls -lh dump.sqlite3
+          echo "=== Disk after decompress ==="
+          df -h /
+          df -h /mnt || true
+
+      # -------------------------------------------------------
+      # 5. synced lyrics のみ抽出
+      # -------------------------------------------------------
+      - name: Extract synced-only records
+        run: |
+          cd "$WORK_DIR"
+
+          echo "Extracting synced lyrics..."
+          sqlite3 dump.sqlite3 <<'SQL'
+          ATTACH DATABASE 'lrclib_synced.db' AS out;
+
+          CREATE TABLE out.lyrics (
+            id INTEGER PRIMARY KEY,
+            track_name TEXT NOT NULL,
+            artist_name TEXT NOT NULL,
+            album_name TEXT,
+            duration REAL,
+            synced_lyrics TEXT NOT NULL
+          );
+
+          INSERT INTO out.lyrics (id, track_name, artist_name, album_name, duration, synced_lyrics)
+            SELECT id, trackName, artistName, albumName, duration, syncedLyrics
+            FROM tracks
+            WHERE syncedLyrics IS NOT NULL AND syncedLyrics != '';
+
+          -- 検索用インデックス
+          CREATE INDEX out.idx_artist_track ON lyrics(artist_name, track_name);
+          CREATE INDEX out.idx_track ON lyrics(track_name);
+          SQL
+
+          # 統計表示
+          TOTAL=$(sqlite3 dump.sqlite3 "SELECT COUNT(*) FROM tracks;")
+          SYNCED=$(sqlite3 lrclib_synced.db "SELECT COUNT(*) FROM lyrics;")
+          echo "========================================"
+          echo "  Total records in dump:   $TOTAL"
+          echo "  Synced records extracted: $SYNCED"
+          echo "========================================"
+
+          ls -lh lrclib_synced.db
+
+      # -------------------------------------------------------
+      # 6. 元のダンプを削除（ディスク解放）
+      # -------------------------------------------------------
+      - name: Remove original dump
+        run: |
+          rm -f "$WORK_DIR/dump.sqlite3"
+          echo "=== Disk after cleanup ==="
+          df -h /
+          df -h /mnt || true
+
+      # -------------------------------------------------------
+      # 7. SQLite 最適化
+      # -------------------------------------------------------
+      - name: Optimize database
+        run: |
+          cd "$WORK_DIR"
+          sqlite3 lrclib_synced.db "VACUUM;"
+          sqlite3 lrclib_synced.db "ANALYZE;"
+          ls -lh lrclib_synced.db
+
+      # -------------------------------------------------------
+      # 8. Brotli 圧縮
+      # -------------------------------------------------------
+      - name: Compress with Brotli
+        run: |
+          cd "$WORK_DIR"
+          brotli -q 6 lrclib_synced.db -o lrclib_synced.db.br
+          echo "========================================"
+          echo "  Uncompressed: $(ls -lh lrclib_synced.db | awk '{print $5}')"
+          echo "  Compressed:   $(ls -lh lrclib_synced.db.br | awk '{print $5}')"
+          echo "========================================"
+
+      # -------------------------------------------------------
+      # 9. GitHub Release にアップロード
+      # -------------------------------------------------------
+      - name: Get date tag
+        id: date
+        run: echo "tag=lrclib-$(date +%Y%m%d)" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.date.outputs.tag }}
+          name: "lrclib synced DB (${{ steps.date.outputs.tag }})"
+          body: |
+            lrclib 公式ダンプから syncedLyrics のみ抽出した軽量DB。
+
+            - ソース: ${{ steps.dump-url.outputs.url }}
+            - 展開後は SQLite3 形式
+            - テーブル: `lyrics` (id, track_name, artist_name, album_name, duration, synced_lyrics)
+            - インデックス: `idx_artist_track`, `idx_track`
+
+            ```
+            brotli -d lrclib_synced.db.br
+            sqlite3 lrclib_synced.db "SELECT * FROM lyrics WHERE artist_name='Kenshi Yonezu' LIMIT 5;"
+            ```
+          files: ${{ env.WORK_DIR }}/lrclib_synced.db.br
