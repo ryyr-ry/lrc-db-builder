@@ -50,9 +50,20 @@ jobs:
           sudo rm -rf /usr/local/share/chromium &
           sudo rm -rf /usr/local/share/powershell &
           sudo rm -rf /opt/hostedtoolcache &
+          sudo rm -rf /usr/lib/jvm &
+          sudo rm -rf /usr/local/go &
+          sudo rm -rf /usr/lib/google-cloud-sdk &
+          sudo rm -rf /usr/share/miniconda &
+          sudo rm -rf /usr/local/.ghcup &
+          sudo rm -rf /usr/share/kotlinc &
+          sudo rm -rf /usr/share/gradle-* &
+          sudo rm -rf /usr/share/sbt &
+          sudo rm -rf /usr/local/julia* &
           sudo docker system prune -af 2>/dev/null &
           wait
           sudo apt-get clean
+          # ext4 予約領域を解放（5% of 145GB = ~7GB）
+          sudo tune2fs -m 0 /dev/root || true
 
           echo "=== After cleanup ==="
           df -h /
