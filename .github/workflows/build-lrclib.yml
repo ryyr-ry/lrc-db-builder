@@ -66,7 +66,7 @@ jobs:
       - name: Download dump
         run: |
           echo "Downloading from: ${{ steps.dump-url.outputs.url }}"
-          WORK_DIR="$HOME/work"
+          WORK_DIR="$HOME/lrclib-build"
           mkdir -p "$WORK_DIR"
           echo "WORK_DIR=$WORK_DIR" >> $GITHUB_ENV
 
@@ -95,6 +95,11 @@ jobs:
       - name: Extract synced-only records
         run: |
           cd "$WORK_DIR"
+
+          echo "=== DB structure ==="
+          sqlite3 dump.sqlite3 ".tables"
+          sqlite3 dump.sqlite3 ".schema" | head -30
+          echo "==================="
 
           echo "Extracting synced lyrics..."
           sqlite3 dump.sqlite3 <<'SQL'
