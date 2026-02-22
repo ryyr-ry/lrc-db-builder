@@ -1,0 +1,42 @@
+name: Build LRC Database
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # 毎日深夜0時(UTC)に自動実行
+  workflow_dispatch: # 手動実行用
+
+jobs:
+  build_and_release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo Dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build Database Builder
+        run: cargo build --release
+
+      - name: Fetch and Compile LRC Data
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./target/release/lrc-db-builder
+
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 実行日をタグにする
+          TAG_NAME="db-$(date +'%Y%m%d%H%M')"
+          gh release create "$TAG_NAME" lyrics.db.br \
+            --title "Daily LRC Database - $(date +'%Y/%m/%d')" \
+            --notes "自動生成された最新の同期歌詞データベースです。
+            クライアントアプリはこのアセットを直接ウンロードして内部のSQLiteを置換してください。"
