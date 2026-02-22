@@ -107,16 +107,16 @@ jobs:
           df -h /
 
           # =============================================
-          # Phase 1: ダンプ → TSV (ストリーミング出力)
-          #   .output でファイルに直接書き出し
-          #   PRAGMA出力は stdout (ログ) に流れる
+          # Phase 1: ダンプ → SQL INSERT文
+          #   .mode insert は改行・引用符を正しくSQLエスケープ
+          #   .output でファイルに直接書き出し（PRAGMA出力は混入しない）
           # =============================================
-          echo "Phase 1: Exporting synced lyrics to TSV..."
+          echo "Phase 1: Exporting as SQL INSERT statements..."
           time sqlite3 dump.sqlite3 <<'SQL'
           PRAGMA mmap_size=8589934592;
           PRAGMA cache_size=-2000000;
-          .mode tabs
-          .output synced.tsv
+          .mode insert lyrics
+          .output inserts.sql
           SELECT t.id, t.name, t.artist_name, t.album_name, t.duration, l.synced_lyrics
             FROM lyrics l
             INNER JOIN tracks t ON t.last_lyrics_id = l.id
@@ -127,9 +127,9 @@ jobs:
           .output stdout
           SQL
 
-          echo "TSV size:"
-          ls -lh synced.tsv
-          wc -l synced.tsv
+          echo "INSERT file:"
+          ls -lh inserts.sql
+          head -1 inserts.sql | cut -c1-200
           df -h /
 
           # =============================================
@@ -139,7 +139,7 @@ jobs:
           rm -f dump.sqlite3
           df -h /
 
-          echo "Phase 2: Building SQLite database from TSV..."
+          echo "Phase 2: Creating database..."
           sqlite3 lrclib_synced.db <<'SQL'
           PRAGMA synchronous=OFF;
           PRAGMA journal_mode=OFF;
@@ -155,7 +155,8 @@ jobs:
           );
           SQL
 
-          time sqlite3 -separator "	" lrclib_synced.db ".import synced.tsv lyrics"
+          echo "Importing INSERT statements (in transaction)..."
+          time (echo "BEGIN TRANSACTION;"; cat inserts.sql; echo "COMMIT;") | sqlite3 lrclib_synced.db
 
           echo "Building indexes..."
           time sqlite3 lrclib_synced.db <<'SQL'
@@ -164,8 +165,8 @@ jobs:
           ANALYZE;
           SQL
 
-          echo "Cleaning up TSV..."
-          rm -f synced.tsv
+          echo "Cleaning up..."
+          rm -f inserts.sql
 
           ROWS=$(sqlite3 lrclib_synced.db "SELECT COUNT(*) FROM lyrics;")
           echo "========================================"
