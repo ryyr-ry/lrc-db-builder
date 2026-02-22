@@ -181,38 +181,58 @@ jobs:
 
           ROWS=$(sqlite3 lrclib_synced.db "SELECT COUNT(*) FROM lyrics;")
           echo "========================================"
-          echo "  Synced records: $ROWS"
+          echo "  Raw synced records: $ROWS"
           echo "========================================"
           ls -lh lrclib_synced.db
           df -h /
 
-          # =============================================
-          # Phase 3: zstd 圧縮
-          # =============================================
-          echo "Phase 3: Compressing with zstd..."
-          time zstd -19 --rm lrclib_synced.db -o lrclib_synced.db.zst
+      # -------------------------------------------------------
+      # 5. フィルタリング（重複排除 + 言語フィルタ + 品質フィルタ）
+      # -------------------------------------------------------
+      - name: Filter
+        run: |
+          cd "$WORK"
+          echo "Running filter script..."
+          time python3 $GITHUB_WORKSPACE/scripts/filter_lyrics.py \
+            lrclib_synced.db lrclib_filtered.db
+
+          echo "Removing raw DB..."
+          rm -f lrclib_synced.db
+          ls -lh lrclib_filtered.db
+          df -h /
+
+      # -------------------------------------------------------
+      # 6. zstd 圧縮（フィルタ後の軽量DBのみ）
+      # -------------------------------------------------------
+      - name: Compress
+        run: |
+          cd "$WORK"
+          echo "Compressing with zstd..."
+          time zstd -19 --rm lrclib_filtered.db -o lrclib_filtered.db.zst
 
           echo "========================================"
-          echo "  Compressed: $(ls -lh lrclib_synced.db.zst | awk '{print $5}')"
+          echo "  Compressed: $(ls -lh lrclib_filtered.db.zst | awk '{print $5}')"
           echo "========================================"
 
       # -------------------------------------------------------
-      # 5. GitHub Release
+      # 7. GitHub Release
       # -------------------------------------------------------
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "lrclib-${{ github.run_id }}"
-          name: "lrclib synced DB"
+          name: "lrclib synced DB (filtered)"
           body: |
-            lrclib 公式ダンプから synced_lyrics のみ抽出した軽量DB。
+            lrclib 公式ダンプから synced_lyrics を抽出し、
+            重複排除 + 言語フィルタ (ja/ko/en) + 品質フィルタを適用した軽量DB。
 
-            - テーブル: `lyrics` (id, track_name, artist_name, album_name, duration, synced_lyrics)
-            - インデックス: `idx_artist_track`, `idx_track`
+            - テーブル: `lyrics` (id, track_name, artist_name, album_name, duration, synced_lyrics, lang)
+            - インデックス: `idx_artist_track`, `idx_lang`
             - 形式: SQLite3 + zstd圧縮
 
             ```bash
-            zstd -d lrclib_synced.db.zst
-            sqlite3 lrclib_synced.db "SELECT * FROM lyrics WHERE artist_name='Kenshi Yonezu' LIMIT 5;"
+            zstd -d lrclib_filtered.db.zst
+            sqlite3 lrclib_filtered.db "SELECT lang, COUNT(*) FROM lyrics GROUP BY lang;"
+            sqlite3 lrclib_filtered.db "SELECT * FROM lyrics WHERE artist_name='Kenshi Yonezu' LIMIT 5;"
             ```
-          files: ${{ env.WORK }}/lrclib_synced.db.zst
+          files: ${{ env.WORK }}/lrclib_filtered.db.zst
