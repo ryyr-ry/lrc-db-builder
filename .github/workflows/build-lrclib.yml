@@ -1,16 +1,15 @@
 name: Build lrclib synced-only DB
-# lrclib の公式ダンプから synced_lyrics のみ抽出し、
-# 軽量 SQLite DB を Brotli 圧縮して GitHub Releases にアップロードする
+# lrclib 公式ダンプ → synced_lyrics 抽出 → zstd 圧縮 → GitHub Releases
 #
-# lrclib DB構造 (確認済み):
+# DB構造 (ソースコード確認済み):
 #   tracks: id, name, artist_name, album_name, duration, last_lyrics_id
-#   lyrics: id, plain_lyrics, synced_lyrics, track_id (FK→tracks), has_synced_lyrics
-#   → tracks と lyrics は track_id で 1:N リレーション
+#   lyrics: id, synced_lyrics, track_id, has_synced_lyrics (indexed)
+#   リレーション: tracks.last_lyrics_id → lyrics.id
 
 on:
   schedule:
-    - cron: "0 6 1 * *" # 毎月1日 06:00 UTC
-  workflow_dispatch: # 手動実行
+    - cron: "0 6 1 * *"
+  workflow_dispatch:
     inputs:
       dump_url:
         description: "lrclib dump URL"
@@ -18,110 +17,106 @@ on:
         default: "https://db-dumps.lrclib.net/lrclib-db-dump-20260122T091251Z.sqlite3.gz"
 
 permissions:
-  contents: write # Release 作成に必要
+  contents: write
 
 jobs:
   build-lrclib-synced:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 120
 
     steps:
       - uses: actions/checkout@v4
 
       # -------------------------------------------------------
-      # 1. ディスク容量の確保
+      # 1. ディスク解放 + ツール導入（並列削除で高速化）
       # -------------------------------------------------------
-      - name: Free disk space
+      - name: Setup
         run: |
           echo "=== Before cleanup ==="
           df -h /
 
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /usr/share/swift
-          sudo rm -rf /usr/local/share/boost
-          sudo rm -rf /usr/local/graalvm
-          sudo rm -rf /usr/local/share/chromium
-          sudo rm -rf /usr/local/share/powershell
-          sudo rm -rf /opt/hostedtoolcache
-          sudo docker system prune -af 2>/dev/null || true
+          # 並列削除
+          sudo rm -rf /usr/share/dotnet &
+          sudo rm -rf /usr/local/lib/android &
+          sudo rm -rf /opt/ghc &
+          sudo rm -rf /usr/share/swift &
+          sudo rm -rf /usr/local/share/boost &
+          sudo rm -rf /usr/local/graalvm &
+          sudo rm -rf /usr/local/share/chromium &
+          sudo rm -rf /usr/local/share/powershell &
+          sudo rm -rf /opt/hostedtoolcache &
+          sudo docker system prune -af 2>/dev/null &
+          wait
           sudo apt-get clean
 
           echo "=== After cleanup ==="
           df -h /
 
-      # -------------------------------------------------------
-      # 2. 必要ツールのインストール
-      # -------------------------------------------------------
-      - name: Install tools
-        run: |
+          # ツールインストール
           sudo apt-get update -qq
-          sudo apt-get install -y -qq sqlite3 brotli aria2 pv isal
+          sudo apt-get install -y -qq --no-install-recommends \
+            sqlite3 aria2 isal zstd
 
       # -------------------------------------------------------
-      # 3. ダウンロード（aria2c 16並列）
+      # 2. ダウンロード (aria2c 16並列, ~90秒)
       # -------------------------------------------------------
-      - name: Set dump URL
-        id: dump-url
+      - name: Download
         run: |
           URL="${{ github.event.inputs.dump_url || 'https://db-dumps.lrclib.net/lrclib-db-dump-20260122T091251Z.sqlite3.gz' }}"
-          echo "url=$URL" >> $GITHUB_OUTPUT
-          echo "Dump URL: $URL"
+          echo "Downloading: $URL"
 
-      - name: Download dump
-        run: |
-          WORK_DIR="$HOME/lrclib-build"
-          mkdir -p "$WORK_DIR"
-          echo "WORK_DIR=$WORK_DIR" >> $GITHUB_ENV
+          WORK="$HOME/lrclib-build"
+          mkdir -p "$WORK"
+          echo "WORK=$WORK" >> $GITHUB_ENV
 
-          echo "Downloading with aria2c (16 connections)..."
-          aria2c -x 16 -s 16 --summary-interval=30 \
-            -d "$WORK_DIR" -o dump.sqlite3.gz \
-            "${{ steps.dump-url.outputs.url }}"
+          aria2c -x 16 -s 16 --summary-interval=15 \
+            -d "$WORK" -o dump.sqlite3.gz "$URL"
 
-          ls -lh "$WORK_DIR/dump.sqlite3.gz"
+          ls -lh "$WORK/dump.sqlite3.gz"
           df -h /
 
       # -------------------------------------------------------
-      # 4. 展開（igzip + pv で進捗表示）
+      # 3. 展開 (igzip in-place, ディスク安全, ~3-4分)
+      #    in-place = gzが上書きされるのでピーク使用量 = 展開後サイズのみ
       # -------------------------------------------------------
-      - name: Decompress dump
+      - name: Decompress
         run: |
-          cd "$WORK_DIR"
-          echo "Decompressing with igzip + pv..."
-          pv dump.sqlite3.gz | igzip -d > dump.sqlite3
-          rm dump.sqlite3.gz
+          cd "$WORK"
+          echo "Decompressing with igzip (in-place)..."
+          time igzip -d dump.sqlite3.gz
           ls -lh dump.sqlite3
           df -h /
 
       # -------------------------------------------------------
-      # 5. DB構造確認
+      # 4. DB確認 + 抽出 + 圧縮（一気に実行）
+      #    出力DBは tmpfs (/dev/shm) に書いてディスクI/Oを排除
       # -------------------------------------------------------
-      - name: Inspect DB structure
+      - name: Extract and compress
         run: |
-          cd "$WORK_DIR"
+          cd "$WORK"
+          OUT="$WORK/lrclib_synced.db"
+
+          # --- DB構造確認 ---
           echo "=== Tables ==="
           sqlite3 dump.sqlite3 ".tables"
           echo "=== tracks columns ==="
           sqlite3 dump.sqlite3 "PRAGMA table_info(tracks);"
           echo "=== lyrics columns ==="
           sqlite3 dump.sqlite3 "PRAGMA table_info(lyrics);"
-          echo "=== tracks count ==="
-          sqlite3 dump.sqlite3 "SELECT COUNT(*) FROM tracks;"
-          echo "=== lyrics with synced count ==="
-          sqlite3 dump.sqlite3 "SELECT COUNT(*) FROM lyrics WHERE has_synced_lyrics = 1;"
+          echo "=== Stats ==="
+          sqlite3 dump.sqlite3 "SELECT COUNT(*) AS total_tracks FROM tracks;"
+          sqlite3 dump.sqlite3 "SELECT COUNT(*) AS synced_lyrics FROM lyrics WHERE has_synced_lyrics = 1;"
 
-      # -------------------------------------------------------
-      # 6. synced lyrics 抽出（tracks JOIN lyrics）
-      # -------------------------------------------------------
-      - name: Extract synced-only records
-        run: |
-          cd "$WORK_DIR"
+          # --- 高速化 PRAGMA + 抽出 ---
+          echo "Extracting synced lyrics with optimized PRAGMAs..."
+          time sqlite3 dump.sqlite3 <<SQL
+          PRAGMA mmap_size=8589934592;
+          PRAGMA cache_size=-2000000;
+          PRAGMA temp_store=MEMORY;
 
-          echo "Extracting synced lyrics (JOIN tracks + lyrics)..."
-          sqlite3 dump.sqlite3 <<'SQL'
-          ATTACH DATABASE 'lrclib_synced.db' AS out;
+          ATTACH DATABASE '$OUT' AS out;
+          PRAGMA out.synchronous=OFF;
+          PRAGMA out.journal_mode=OFF;
 
           CREATE TABLE out.lyrics (
             id INTEGER PRIMARY KEY,
@@ -134,50 +129,42 @@ jobs:
 
           INSERT INTO out.lyrics (id, track_name, artist_name, album_name, duration, synced_lyrics)
             SELECT t.id, t.name, t.artist_name, t.album_name, t.duration, l.synced_lyrics
-            FROM tracks t
-            INNER JOIN lyrics l ON l.id = t.last_lyrics_id
-            WHERE l.synced_lyrics IS NOT NULL AND l.synced_lyrics != '';
+            FROM lyrics l
+            INNER JOIN tracks t ON t.last_lyrics_id = l.id
+            WHERE l.has_synced_lyrics = 1
+              AND t.name IS NOT NULL
+              AND t.artist_name IS NOT NULL
+              AND l.synced_lyrics IS NOT NULL;
 
           CREATE INDEX out.idx_artist_track ON lyrics(artist_name, track_name);
           CREATE INDEX out.idx_track ON lyrics(track_name);
+
+          SELECT '========================================';
+          SELECT '  Synced records: ' || COUNT(*) FROM out.lyrics;
+          SELECT '========================================';
           SQL
 
-          TOTAL=$(sqlite3 dump.sqlite3 "SELECT COUNT(*) FROM tracks;")
-          SYNCED=$(sqlite3 lrclib_synced.db "SELECT COUNT(*) FROM lyrics;")
-          echo "========================================"
-          echo "  Total tracks in dump:    $TOTAL"
-          echo "  Synced records extracted: $SYNCED"
-          echo "========================================"
-          ls -lh lrclib_synced.db
+          ls -lh "$OUT"
 
-      # -------------------------------------------------------
-      # 7. 元ダンプ削除 → 最適化 → 圧縮
-      # -------------------------------------------------------
-      - name: Remove original dump
-        run: |
-          rm -f "$WORK_DIR/dump.sqlite3"
+          # --- 元ダンプ削除 ---
+          rm -f dump.sqlite3
           df -h /
 
-      - name: Optimize database
-        run: |
-          cd "$WORK_DIR"
-          sqlite3 lrclib_synced.db "VACUUM;"
-          sqlite3 lrclib_synced.db "ANALYZE;"
-          ls -lh lrclib_synced.db
+          # --- ANALYZE ---
+          sqlite3 "$OUT" "ANALYZE;"
 
-      - name: Compress with Brotli
-        run: |
-          cd "$WORK_DIR"
-          brotli -q 9 lrclib_synced.db -o lrclib_synced.db.br
+          # --- zstd 圧縮 (brotliの5倍速で同等圧縮率) ---
+          echo "Compressing with zstd..."
+          time zstd -19 --rm "$OUT" -o "$WORK/lrclib_synced.db.zst"
+
           echo "========================================"
-          echo "  Uncompressed: $(ls -lh lrclib_synced.db | awk '{print $5}')"
-          echo "  Compressed:   $(ls -lh lrclib_synced.db.br | awk '{print $5}')"
+          echo "  Compressed: $(ls -lh $WORK/lrclib_synced.db.zst | awk '{print $5}')"
           echo "========================================"
 
       # -------------------------------------------------------
-      # 8. GitHub Release にアップロード
+      # 5. GitHub Release
       # -------------------------------------------------------
-      - name: Create Release
+      - name: Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "lrclib-${{ github.run_id }}"
@@ -185,12 +172,12 @@ jobs:
           body: |
             lrclib 公式ダンプから synced_lyrics のみ抽出した軽量DB。
 
-            - ソース: ${{ steps.dump-url.outputs.url }}
             - テーブル: `lyrics` (id, track_name, artist_name, album_name, duration, synced_lyrics)
-            - インデックス: `idx_artist_track(artist_name, track_name)`, `idx_track(track_name)`
+            - インデックス: `idx_artist_track`, `idx_track`
+            - 形式: SQLite3 + zstd圧縮
 
-            ```
-            brotli -d lrclib_synced.db.br
+            ```bash
+            zstd -d lrclib_synced.db.zst
             sqlite3 lrclib_synced.db "SELECT * FROM lyrics WHERE artist_name='Kenshi Yonezu' LIMIT 5;"
             ```
-          files: ${{ env.WORK_DIR }}/lrclib_synced.db.br
+          files: ${{ env.WORK }}/lrclib_synced.db.zst
