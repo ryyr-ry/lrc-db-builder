@@ -16,11 +16,6 @@ const COMPILED_DB_NAME: &str = "lyrics.db.br";
 const CONCURRENCY_LIMIT: usize = 200;
 
 #[derive(Deserialize)]
-struct RepoItem {
-    name: String,
-}
-
-#[derive(Deserialize)]
 struct Manifest {
     candidates: Option<Vec<Candidate>>,
 }
@@ -74,16 +69,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             None => "".to_string(),
         };
 
-        let query = format!(
-            r#"{{
-                "query": "query {{ user(login: \"{}\") {{ repositories(first: 100{}) {{ pageInfo {{ hasNextPage endCursor }} nodes {{ name }} }} }} }}"
-            }}"#,
+        // format!() による直接展開はエスケープ漏れによるJSON破壊が起きやすいため、serde_json::json! で正確にシリアライズする
+        let query_str = format!(
+            "query {{ user(login: \"{}\") {{ repositories(first: 100{}) {{ pageInfo {{ hasNextPage endCursor }} nodes {{ name }} }} }} }}",
             ORG_NAME, after_clause
         );
+        let payload = serde_json::json!({ "query": query_str });
 
         let resp = client
             .post("https://api.github.com/graphql")
-            .body(query)
+            .json(&payload)
             .send()
             .await;
 
