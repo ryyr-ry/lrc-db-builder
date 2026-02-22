@@ -1,10 +1,16 @@
 name: Build lrclib synced-only DB
 # lrclib 公式ダンプ → synced_lyrics 抽出 → zstd 圧縮 → GitHub Releases
 #
-# DB構造 (ソースコード確認済み):
-#   tracks: id, name, artist_name, album_name, duration, last_lyrics_id
-#   lyrics: id, synced_lyrics, track_id, has_synced_lyrics (indexed)
-#   リレーション: tracks.last_lyrics_id → lyrics.id
+# DB構造 (ソースコード + 実行ログ確認済み):
+#   tracks (21.5M件): id, name, artist_name, album_name, duration, last_lyrics_id
+#   lyrics (13.5M synced): id, synced_lyrics, track_id, has_synced_lyrics (indexed)
+#
+# ディスク制約:
+#   ランナー: 145GB, cleanup後118GB空き
+#   ダンプ: 20GB(gz) → 78GB(sqlite)
+#   出力DB: 13.5M件 × ~2KB ≈ 25-30GB
+#   → 78GB + 30GB = 108GB > 空き40GB (展開後)
+#   → 2フェーズ方式で回避: TSV出力 → ダンプ削除 → SQLiteインポート
 
 on:
   schedule:
@@ -28,14 +34,13 @@ jobs:
       - uses: actions/checkout@v4
 
       # -------------------------------------------------------
-      # 1. ディスク解放 + ツール導入（並列削除で高速化）
+      # 1. セットアップ（並列ディスク解放 + ツール導入）
       # -------------------------------------------------------
       - name: Setup
         run: |
           echo "=== Before cleanup ==="
           df -h /
 
-          # 並列削除
           sudo rm -rf /usr/share/dotnet &
           sudo rm -rf /usr/local/lib/android &
           sudo rm -rf /opt/ghc &
@@ -52,7 +57,6 @@ jobs:
           echo "=== After cleanup ==="
           df -h /
 
-          # ツールインストール
           sudo apt-get update -qq
           sudo apt-get install -y -qq --no-install-recommends \
             sqlite3 aria2 isal zstd
@@ -76,8 +80,7 @@ jobs:
           df -h /
 
       # -------------------------------------------------------
-      # 3. 展開 (igzip in-place, ディスク安全, ~3-4分)
-      #    in-place = gzが上書きされるのでピーク使用量 = 展開後サイズのみ
+      # 3. 展開 (igzip in-place, ~4分)
       # -------------------------------------------------------
       - name: Decompress
         run: |
@@ -88,37 +91,61 @@ jobs:
           df -h /
 
       # -------------------------------------------------------
-      # 4. DB確認 + 抽出 + 圧縮（一気に実行）
-      #    出力DBは tmpfs (/dev/shm) に書いてディスクI/Oを排除
+      # 4. 2フェーズ抽出
+      #    ディスク制約: ダンプ78GB + 出力DB30GB > 空き40GB
+      #    → Phase1: ダンプからTSVにストリーム出力
+      #    → Phase2: ダンプ削除 → TSVからSQLiteビルド
       # -------------------------------------------------------
       - name: Extract and compress
         run: |
           cd "$WORK"
-          OUT="$WORK/lrclib_synced.db"
 
-          # --- DB構造確認 ---
-          echo "=== Tables ==="
-          sqlite3 dump.sqlite3 ".tables"
-          echo "=== tracks columns ==="
-          sqlite3 dump.sqlite3 "PRAGMA table_info(tracks);"
-          echo "=== lyrics columns ==="
-          sqlite3 dump.sqlite3 "PRAGMA table_info(lyrics);"
-          echo "=== Stats ==="
-          sqlite3 dump.sqlite3 "SELECT COUNT(*) AS total_tracks FROM tracks;"
-          sqlite3 dump.sqlite3 "SELECT COUNT(*) AS synced_lyrics FROM lyrics WHERE has_synced_lyrics = 1;"
+          # --- DB統計 ---
+          echo "=== DB Stats ==="
+          sqlite3 dump.sqlite3 "SELECT 'tracks: ' || COUNT(*) FROM tracks;"
+          sqlite3 dump.sqlite3 "SELECT 'synced lyrics: ' || COUNT(*) FROM lyrics WHERE has_synced_lyrics = 1;"
+          df -h /
 
-          # --- 高速化 PRAGMA + 抽出 ---
-          echo "Extracting synced lyrics with optimized PRAGMAs..."
-          time sqlite3 dump.sqlite3 <<SQL
+          # =============================================
+          # Phase 1: ダンプ → TSV (ストリーミング出力)
+          #   .output でファイルに直接書き出し
+          #   PRAGMA出力は stdout (ログ) に流れる
+          # =============================================
+          echo "Phase 1: Exporting synced lyrics to TSV..."
+          time sqlite3 dump.sqlite3 <<'SQL'
           PRAGMA mmap_size=8589934592;
           PRAGMA cache_size=-2000000;
-          PRAGMA temp_store=MEMORY;
+          .mode tabs
+          .output synced.tsv
+          SELECT t.id, t.name, t.artist_name, t.album_name, t.duration, l.synced_lyrics
+            FROM lyrics l
+            INNER JOIN tracks t ON t.last_lyrics_id = l.id
+            WHERE l.has_synced_lyrics = 1
+              AND t.name IS NOT NULL
+              AND t.artist_name IS NOT NULL
+              AND l.synced_lyrics IS NOT NULL;
+          .output stdout
+          SQL
 
-          ATTACH DATABASE '$OUT' AS out;
-          PRAGMA out.synchronous=OFF;
-          PRAGMA out.journal_mode=OFF;
+          echo "TSV size:"
+          ls -lh synced.tsv
+          wc -l synced.tsv
+          df -h /
 
-          CREATE TABLE out.lyrics (
+          # =============================================
+          # Phase 2: ダンプ削除 → SQLite ビルド
+          # =============================================
+          echo "Phase 2: Deleting dump to free 78GB..."
+          rm -f dump.sqlite3
+          df -h /
+
+          echo "Phase 2: Building SQLite database from TSV..."
+          sqlite3 lrclib_synced.db <<'SQL'
+          PRAGMA synchronous=OFF;
+          PRAGMA journal_mode=OFF;
+          PRAGMA cache_size=-1000000;
+
+          CREATE TABLE lyrics (
             id INTEGER PRIMARY KEY,
             track_name TEXT NOT NULL,
             artist_name TEXT NOT NULL,
@@ -126,39 +153,35 @@ jobs:
             duration REAL,
             synced_lyrics TEXT NOT NULL
           );
-
-          INSERT INTO out.lyrics (id, track_name, artist_name, album_name, duration, synced_lyrics)
-            SELECT t.id, t.name, t.artist_name, t.album_name, t.duration, l.synced_lyrics
-            FROM lyrics l
-            INNER JOIN tracks t ON t.last_lyrics_id = l.id
-            WHERE l.has_synced_lyrics = 1
-              AND t.name IS NOT NULL
-              AND t.artist_name IS NOT NULL
-              AND l.synced_lyrics IS NOT NULL;
-
-          CREATE INDEX out.idx_artist_track ON lyrics(artist_name, track_name);
-          CREATE INDEX out.idx_track ON lyrics(track_name);
-
-          SELECT '========================================';
-          SELECT '  Synced records: ' || COUNT(*) FROM out.lyrics;
-          SELECT '========================================';
           SQL
 
-          ls -lh "$OUT"
+          time sqlite3 -separator "	" lrclib_synced.db ".import synced.tsv lyrics"
 
-          # --- 元ダンプ削除 ---
-          rm -f dump.sqlite3
+          echo "Building indexes..."
+          time sqlite3 lrclib_synced.db <<'SQL'
+          CREATE INDEX idx_artist_track ON lyrics(artist_name, track_name);
+          CREATE INDEX idx_track ON lyrics(track_name);
+          ANALYZE;
+          SQL
+
+          echo "Cleaning up TSV..."
+          rm -f synced.tsv
+
+          ROWS=$(sqlite3 lrclib_synced.db "SELECT COUNT(*) FROM lyrics;")
+          echo "========================================"
+          echo "  Synced records: $ROWS"
+          echo "========================================"
+          ls -lh lrclib_synced.db
           df -h /
 
-          # --- ANALYZE ---
-          sqlite3 "$OUT" "ANALYZE;"
-
-          # --- zstd 圧縮 (brotliの5倍速で同等圧縮率) ---
-          echo "Compressing with zstd..."
-          time zstd -19 --rm "$OUT" -o "$WORK/lrclib_synced.db.zst"
+          # =============================================
+          # Phase 3: zstd 圧縮
+          # =============================================
+          echo "Phase 3: Compressing with zstd..."
+          time zstd -19 --rm lrclib_synced.db -o lrclib_synced.db.zst
 
           echo "========================================"
-          echo "  Compressed: $(ls -lh $WORK/lrclib_synced.db.zst | awk '{print $5}')"
+          echo "  Compressed: $(ls -lh lrclib_synced.db.zst | awk '{print $5}')"
           echo "========================================"
 
       # -------------------------------------------------------
