@@ -193,7 +193,7 @@ jobs:
         run: |
           cd "$WORK"
           echo "Running filter script..."
-          time python3 $GITHUB_WORKSPACE/scripts/filter_lyrics.py \
+          time python3 -u $GITHUB_WORKSPACE/scripts/filter_lyrics.py \
             lrclib_synced.db lrclib_filtered.db
 
           echo "Removing raw DB..."
