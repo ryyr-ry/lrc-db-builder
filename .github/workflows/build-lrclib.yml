@@ -12,6 +12,9 @@ on:
         required: false
         default: "https://db-dumps.lrclib.net/lrclib-db-dump-20260122T091251Z.sqlite3.gz"
 
+permissions:
+  contents: write # Release 作成に必要
+
 jobs:
   build-lrclib-synced:
     runs-on: ubuntu-latest
@@ -19,15 +22,17 @@ jobs:
 
     steps:
       # -------------------------------------------------------
+      # 0. リポジトリのチェックアウト（Release作成に必要）
+      # -------------------------------------------------------
+      - uses: actions/checkout@v4
+
+      # -------------------------------------------------------
       # 1. ディスク容量の確保
-      #    プリインストール済みの不要パッケージを削除して
-      #    約50-60GBの空きを作る
       # -------------------------------------------------------
       - name: Free disk space
         run: |
           echo "=== Before cleanup ==="
           df -h /
-          df -h /mnt || true
 
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /usr/local/lib/android
@@ -38,12 +43,11 @@ jobs:
           sudo rm -rf /usr/local/share/chromium
           sudo rm -rf /usr/local/share/powershell
           sudo rm -rf /opt/hostedtoolcache
-          sudo docker system prune -af || true
+          sudo docker system prune -af 2>/dev/null || true
           sudo apt-get clean
 
           echo "=== After cleanup ==="
           df -h /
-          df -h /mnt || true
 
       # -------------------------------------------------------
       # 2. 必要ツールのインストール
@@ -51,10 +55,10 @@ jobs:
       - name: Install tools
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq sqlite3 brotli
+          sudo apt-get install -y -qq sqlite3 brotli aria2
 
       # -------------------------------------------------------
-      # 3. lrclib ダンプのダウンロード
+      # 3. lrclib ダンプのダウンロード（aria2c で並列高速DL）
       # -------------------------------------------------------
       - name: Set dump URL
         id: dump-url
@@ -70,14 +74,16 @@ jobs:
           mkdir -p "$WORK_DIR"
           echo "WORK_DIR=$WORK_DIR" >> $GITHUB_ENV
 
-          wget -q --show-progress -O "$WORK_DIR/dump.sqlite3.gz" \
+          aria2c -x 16 -s 16 --summary-interval=30 \
+            -d "$WORK_DIR" -o dump.sqlite3.gz \
             "${{ steps.dump-url.outputs.url }}"
+
           ls -lh "$WORK_DIR/dump.sqlite3.gz"
           echo "=== Disk after download ==="
           df -h /
 
       # -------------------------------------------------------
-      # 4. 展開
+      # 4. 展開（gunzip は in-place で .gz を削除するのでピーク = 展開後サイズのみ）
       # -------------------------------------------------------
       - name: Decompress dump
         run: |
@@ -87,19 +93,28 @@ jobs:
           ls -lh dump.sqlite3
           echo "=== Disk after decompress ==="
           df -h /
-          df -h /mnt || true
 
       # -------------------------------------------------------
-      # 5. synced lyrics のみ抽出
+      # 5. テーブル構造確認 + synced lyrics 抽出
       # -------------------------------------------------------
+      - name: Inspect DB structure
+        run: |
+          cd "$WORK_DIR"
+          echo "=== Tables ==="
+          sqlite3 dump.sqlite3 ".tables"
+          echo "=== Schema (first 50 lines) ==="
+          sqlite3 dump.sqlite3 ".schema" | head -50
+          echo "=== Row count ==="
+          # テーブル名を自動検出（tracks, track, lyrics 等複数の可能性に対応）
+          TABLE=$(sqlite3 dump.sqlite3 ".tables" | tr -s ' ' '\n' | head -1)
+          echo "Primary table: $TABLE"
+          sqlite3 dump.sqlite3 "SELECT COUNT(*) FROM $TABLE;"
+          echo "=== Sample columns ==="
+          sqlite3 dump.sqlite3 "PRAGMA table_info($TABLE);" | head -20
+
       - name: Extract synced-only records
         run: |
           cd "$WORK_DIR"
-
-          echo "=== DB structure ==="
-          sqlite3 dump.sqlite3 ".tables"
-          sqlite3 dump.sqlite3 ".schema" | head -30
-          echo "==================="
 
           echo "Extracting synced lyrics..."
           sqlite3 dump.sqlite3 <<'SQL'
@@ -142,7 +157,6 @@ jobs:
           rm -f "$WORK_DIR/dump.sqlite3"
           echo "=== Disk after cleanup ==="
           df -h /
-          df -h /mnt || true
 
       # -------------------------------------------------------
       # 7. SQLite 最適化
@@ -155,12 +169,12 @@ jobs:
           ls -lh lrclib_synced.db
 
       # -------------------------------------------------------
-      # 8. Brotli 圧縮
+      # 8. Brotli 圧縮（-q 9: 月1回ビルドなので高圧縮優先）
       # -------------------------------------------------------
       - name: Compress with Brotli
         run: |
           cd "$WORK_DIR"
-          brotli -q 6 lrclib_synced.db -o lrclib_synced.db.br
+          brotli -q 9 lrclib_synced.db -o lrclib_synced.db.br
           echo "========================================"
           echo "  Uncompressed: $(ls -lh lrclib_synced.db | awk '{print $5}')"
           echo "  Compressed:   $(ls -lh lrclib_synced.db.br | awk '{print $5}')"
@@ -169,15 +183,11 @@ jobs:
       # -------------------------------------------------------
       # 9. GitHub Release にアップロード
       # -------------------------------------------------------
-      - name: Get date tag
-        id: date
-        run: echo "tag=lrclib-$(date +%Y%m%d)" >> $GITHUB_OUTPUT
-
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.date.outputs.tag }}
-          name: "lrclib synced DB (${{ steps.date.outputs.tag }})"
+          tag_name: "lrclib-${{ github.run_id }}"
+          name: "lrclib synced DB ($(date -u +%Y-%m-%d))"
           body: |
             lrclib 公式ダンプから syncedLyrics のみ抽出した軽量DB。
 
