@@ -70,7 +70,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     loop {
         let url = format!(
-            "https://api.github.com/orgs/{}/repos?type=public&per_page={}&page={}",
+            "https://api.github.com/users/{}/repos?type=owner&per_page={}&page={}",
             ORG_NAME, per_page, page
         );
         let resp = client.get(&url).send().await;

@@ -29,7 +29,7 @@ git add .
 git commit -m "Initial commit for LRC DB Builder"
 
 # 作成したGitHubリポジトリのURLを登録（ご自身のURLに書き換えてください）
-git remote add origin https://github.com/あなたのユーザー名/lrc-db-builder.git
+git remote add origin https://github.com/ryyr-ry/lrc-db-builder.git
 
 # GitHubへコードを送信
 git branch -M main
