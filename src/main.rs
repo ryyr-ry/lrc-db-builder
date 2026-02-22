@@ -63,45 +63,66 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .default_headers(headers)
         .build()?;
 
-    log::info!("Fetching repository list from {}...", ORG_NAME);
+    log::info!("Fetching repository list using GraphQL from {}...", ORG_NAME);
     let mut repos = Vec::new();
-    let mut page = 1;
-    let per_page = 100;
+    let mut has_next_page = true;
+    let mut end_cursor: Option<String> = None;
 
-    loop {
-        let url = format!(
-            "https://api.github.com/users/{}/repos?type=owner&per_page={}&page={}",
-            ORG_NAME, per_page, page
+    while has_next_page {
+        let after_clause = match &end_cursor {
+            Some(cursor) => format!(r#", after: "{}""#, cursor),
+            None => "".to_string(),
+        };
+
+        let query = format!(
+            r#"{{
+                "query": "query {{ user(login: \"{}\") {{ repositories(first: 100{}) {{ pageInfo {{ hasNextPage endCursor }} nodes {{ name }} }} }} }}"
+            }}"#,
+            ORG_NAME, after_clause
         );
-        let resp = client.get(&url).send().await;
+
+        let resp = client
+            .post("https://api.github.com/graphql")
+            .body(query)
+            .send()
+            .await;
 
         match resp {
             Ok(res) if res.status().is_success() => {
-                if let Ok(data) = res.json::<Vec<RepoItem>>().await {
-                    if data.is_empty() {
-                        break;
-                    }
-                    let count = data.len();
-                    for repo in data {
-                        if !repo.name.starts_with('.') {
-                            repos.push(repo.name);
+                if let Ok(data) = res.json::<serde_json::Value>().await {
+                    let repos_node = &data["data"]["user"]["repositories"];
+                    
+                    if let Some(nodes) = repos_node["nodes"].as_array() {
+                        for node in nodes {
+                            if let Some(name) = node["name"].as_str() {
+                                if !name.starts_with('.') {
+                                    repos.push(name.to_string());
+                                }
+                            }
                         }
                     }
-                    if count < per_page {
-                        break;
+
+                    has_next_page = repos_node["pageInfo"]["hasNextPage"].as_bool().unwrap_or(false);
+                    if has_next_page {
+                        end_cursor = repos_node["pageInfo"]["endCursor"].as_str().map(|s| s.to_string());
                     }
-                    page += 1;
-                    tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
                 } else {
                     break;
                 }
             }
             Ok(res) => {
-                log::error!("Failed to fetch repos: HTTP {}", res.status());
+                let status = res.status();
+                let txt = res.text().await.unwrap_or_default();
+                log::error!("GraphQL failed: HTTP {} - {}", status, txt);
+                if status == 403 || status == 429 {
+                    log::warn!("Rate limited. Waiting 10 seconds...");
+                    tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
+                    continue; // リトライ
+                }
                 break;
             }
             Err(e) => {
-                log::error!("Error fetching repos: {}", e);
+                log::error!("Error fetching from GraphQL: {}", e);
                 break;
             }
         }
