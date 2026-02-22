@@ -1,6 +1,11 @@
 name: Build lrclib synced-only DB
-# lrclib の公式ダンプから syncedLyrics のみ抽出し、
+# lrclib の公式ダンプから synced_lyrics のみ抽出し、
 # 軽量 SQLite DB を Brotli 圧縮して GitHub Releases にアップロードする
+#
+# lrclib DB構造 (確認済み):
+#   tracks: id, name, artist_name, album_name, duration, last_lyrics_id
+#   lyrics: id, plain_lyrics, synced_lyrics, track_id (FK→tracks), has_synced_lyrics
+#   → tracks と lyrics は track_id で 1:N リレーション
 
 on:
   schedule:
@@ -18,12 +23,9 @@ permissions:
 jobs:
   build-lrclib-synced:
     runs-on: ubuntu-latest
-    timeout-minutes: 180 # 3時間タイムアウト
+    timeout-minutes: 180
 
     steps:
-      # -------------------------------------------------------
-      # 0. リポジトリのチェックアウト（Release作成に必要）
-      # -------------------------------------------------------
       - uses: actions/checkout@v4
 
       # -------------------------------------------------------
@@ -55,10 +57,10 @@ jobs:
       - name: Install tools
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq sqlite3 brotli aria2
+          sudo apt-get install -y -qq sqlite3 brotli aria2 pv isal
 
       # -------------------------------------------------------
-      # 3. lrclib ダンプのダウンロード（aria2c で並列高速DL）
+      # 3. ダウンロード（aria2c 16並列）
       # -------------------------------------------------------
       - name: Set dump URL
         id: dump-url
@@ -69,54 +71,55 @@ jobs:
 
       - name: Download dump
         run: |
-          echo "Downloading from: ${{ steps.dump-url.outputs.url }}"
           WORK_DIR="$HOME/lrclib-build"
           mkdir -p "$WORK_DIR"
           echo "WORK_DIR=$WORK_DIR" >> $GITHUB_ENV
 
+          echo "Downloading with aria2c (16 connections)..."
           aria2c -x 16 -s 16 --summary-interval=30 \
             -d "$WORK_DIR" -o dump.sqlite3.gz \
             "${{ steps.dump-url.outputs.url }}"
 
           ls -lh "$WORK_DIR/dump.sqlite3.gz"
-          echo "=== Disk after download ==="
           df -h /
 
       # -------------------------------------------------------
-      # 4. 展開（gunzip は in-place で .gz を削除するのでピーク = 展開後サイズのみ）
+      # 4. 展開（igzip + pv で進捗表示）
       # -------------------------------------------------------
       - name: Decompress dump
         run: |
           cd "$WORK_DIR"
-          echo "Decompressing (this may take a while)..."
-          gunzip dump.sqlite3.gz
+          echo "Decompressing with igzip + pv..."
+          pv dump.sqlite3.gz | igzip -d > dump.sqlite3
+          rm dump.sqlite3.gz
           ls -lh dump.sqlite3
-          echo "=== Disk after decompress ==="
           df -h /
 
       # -------------------------------------------------------
-      # 5. テーブル構造確認 + synced lyrics 抽出
+      # 5. DB構造確認
       # -------------------------------------------------------
       - name: Inspect DB structure
         run: |
           cd "$WORK_DIR"
           echo "=== Tables ==="
           sqlite3 dump.sqlite3 ".tables"
-          echo "=== Schema (first 50 lines) ==="
-          sqlite3 dump.sqlite3 ".schema" | head -50
-          echo "=== Row count ==="
-          # テーブル名を自動検出（tracks, track, lyrics 等複数の可能性に対応）
-          TABLE=$(sqlite3 dump.sqlite3 ".tables" | tr -s ' ' '\n' | head -1)
-          echo "Primary table: $TABLE"
-          sqlite3 dump.sqlite3 "SELECT COUNT(*) FROM $TABLE;"
-          echo "=== Sample columns ==="
-          sqlite3 dump.sqlite3 "PRAGMA table_info($TABLE);" | head -20
+          echo "=== tracks columns ==="
+          sqlite3 dump.sqlite3 "PRAGMA table_info(tracks);"
+          echo "=== lyrics columns ==="
+          sqlite3 dump.sqlite3 "PRAGMA table_info(lyrics);"
+          echo "=== tracks count ==="
+          sqlite3 dump.sqlite3 "SELECT COUNT(*) FROM tracks;"
+          echo "=== lyrics with synced count ==="
+          sqlite3 dump.sqlite3 "SELECT COUNT(*) FROM lyrics WHERE has_synced_lyrics = 1;"
 
+      # -------------------------------------------------------
+      # 6. synced lyrics 抽出（tracks JOIN lyrics）
+      # -------------------------------------------------------
       - name: Extract synced-only records
         run: |
           cd "$WORK_DIR"
 
-          echo "Extracting synced lyrics..."
+          echo "Extracting synced lyrics (JOIN tracks + lyrics)..."
           sqlite3 dump.sqlite3 <<'SQL'
           ATTACH DATABASE 'lrclib_synced.db' AS out;
 
@@ -130,37 +133,31 @@ jobs:
           );
 
           INSERT INTO out.lyrics (id, track_name, artist_name, album_name, duration, synced_lyrics)
-            SELECT id, trackName, artistName, albumName, duration, syncedLyrics
-            FROM tracks
-            WHERE syncedLyrics IS NOT NULL AND syncedLyrics != '';
+            SELECT t.id, t.name, t.artist_name, t.album_name, t.duration, l.synced_lyrics
+            FROM tracks t
+            INNER JOIN lyrics l ON l.id = t.last_lyrics_id
+            WHERE l.synced_lyrics IS NOT NULL AND l.synced_lyrics != '';
 
-          -- 検索用インデックス
           CREATE INDEX out.idx_artist_track ON lyrics(artist_name, track_name);
           CREATE INDEX out.idx_track ON lyrics(track_name);
           SQL
 
-          # 統計表示
           TOTAL=$(sqlite3 dump.sqlite3 "SELECT COUNT(*) FROM tracks;")
           SYNCED=$(sqlite3 lrclib_synced.db "SELECT COUNT(*) FROM lyrics;")
           echo "========================================"
-          echo "  Total records in dump:   $TOTAL"
+          echo "  Total tracks in dump:    $TOTAL"
           echo "  Synced records extracted: $SYNCED"
           echo "========================================"
-
           ls -lh lrclib_synced.db
 
       # -------------------------------------------------------
-      # 6. 元のダンプを削除（ディスク解放）
+      # 7. 元ダンプ削除 → 最適化 → 圧縮
       # -------------------------------------------------------
       - name: Remove original dump
         run: |
           rm -f "$WORK_DIR/dump.sqlite3"
-          echo "=== Disk after cleanup ==="
           df -h /
 
-      # -------------------------------------------------------
-      # 7. SQLite 最適化
-      # -------------------------------------------------------
       - name: Optimize database
         run: |
           cd "$WORK_DIR"
@@ -168,9 +165,6 @@ jobs:
           sqlite3 lrclib_synced.db "ANALYZE;"
           ls -lh lrclib_synced.db
 
-      # -------------------------------------------------------
-      # 8. Brotli 圧縮（-q 9: 月1回ビルドなので高圧縮優先）
-      # -------------------------------------------------------
       - name: Compress with Brotli
         run: |
           cd "$WORK_DIR"
@@ -181,20 +175,19 @@ jobs:
           echo "========================================"
 
       # -------------------------------------------------------
-      # 9. GitHub Release にアップロード
+      # 8. GitHub Release にアップロード
       # -------------------------------------------------------
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "lrclib-${{ github.run_id }}"
-          name: "lrclib synced DB ($(date -u +%Y-%m-%d))"
+          name: "lrclib synced DB"
           body: |
-            lrclib 公式ダンプから syncedLyrics のみ抽出した軽量DB。
+            lrclib 公式ダンプから synced_lyrics のみ抽出した軽量DB。
 
             - ソース: ${{ steps.dump-url.outputs.url }}
-            - 展開後は SQLite3 形式
             - テーブル: `lyrics` (id, track_name, artist_name, album_name, duration, synced_lyrics)
-            - インデックス: `idx_artist_track`, `idx_track`
+            - インデックス: `idx_artist_track(artist_name, track_name)`, `idx_track(track_name)`
 
             ```
             brotli -d lrclib_synced.db.br

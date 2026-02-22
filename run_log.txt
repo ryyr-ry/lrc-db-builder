@@ -1,0 +1,442 @@
+build-lrclib-synced	Set up job	・ｿ2026-02-22T07:48:07.2334167Z Current runner version: '2.331.0'
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2369664Z ##[group]Runner Image Provisioner
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2370824Z Hosted Compute Agent
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2371679Z Version: 20260123.484
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2372489Z Commit: 6bd6555ca37d84114959e1c76d2c01448ff61c5d
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2373537Z Build Date: 2026-01-23T19:41:17Z
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2374516Z Worker ID: {9917c6a5-b203-464d-851a-0e2b2ddc384a}
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2375533Z Azure Region: northcentralus
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2376358Z ##[endgroup]
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2378514Z ##[group]Operating System
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2379402Z Ubuntu
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2380036Z 24.04.3
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2380724Z LTS
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2381393Z ##[endgroup]
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2382119Z ##[group]Runner Image
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2382866Z Image: ubuntu-24.04
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2383642Z Version: 20260201.15.1
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2385144Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260201.15/images/ubuntu/Ubuntu2404-Readme.md
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2387899Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260201.15
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2389230Z ##[endgroup]
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2390667Z ##[group]GITHUB_TOKEN Permissions
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2393407Z Contents: write
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2394142Z Metadata: read
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2394976Z ##[endgroup]
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2397735Z Secret source: Actions
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2399055Z Prepare workflow directory
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2727842Z Prepare all required actions
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.2784894Z Getting action download info
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.5870730Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+build-lrclib-synced	Set up job	2026-02-22T07:48:07.6688610Z Download action repository 'softprops/action-gh-release@v2' (SHA:a06a81a03ee405af7f2048a818ed3f03bbf83c7b)
+build-lrclib-synced	Set up job	2026-02-22T07:48:08.1080772Z Complete job name: build-lrclib-synced
+build-lrclib-synced	Run actions/checkout@v4	・ｿ2026-02-22T07:48:08.1733251Z ##[group]Run actions/checkout@v4
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.1734177Z with:
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.1734816Z   repository: ryyr-ry/lrc-db-builder
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.1735616Z   token: ***
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.1736097Z   ssh-strict: true
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.1736625Z   ssh-user: git
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.1737266Z   persist-credentials: true
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.1737802Z   clean: true
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.1738332Z   sparse-checkout-cone-mode: true
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.1738905Z   fetch-depth: 1
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.1739365Z   fetch-tags: false
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.1739903Z   show-progress: true
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.1740391Z   lfs: false
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.1740848Z   submodules: false
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.1741321Z   set-safe-directory: true
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.1742152Z ##[endgroup]
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.2784617Z Syncing repository: ryyr-ry/lrc-db-builder
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.2788085Z ##[group]Getting Git version info
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.2789918Z Working directory is '/home/runner/work/lrc-db-builder/lrc-db-builder'
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.2792399Z [command]/usr/bin/git version
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.2797538Z git version 2.52.0
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.2820855Z ##[endgroup]
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.2834379Z Temporarily overriding HOME='/home/runner/work/_temp/cde8b89c-6a09-4bd2-90fa-b626dfd32437' before making global git config changes
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.2837554Z Adding repository directory to the temporary git global config as a safe directory
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.2840148Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/lrc-db-builder/lrc-db-builder
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.2883239Z Deleting the contents of '/home/runner/work/lrc-db-builder/lrc-db-builder'
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.2886037Z ##[group]Initializing the repository
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.2890479Z [command]/usr/bin/git init /home/runner/work/lrc-db-builder/lrc-db-builder
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.2981331Z hint: Using 'master' as the name for the initial branch. This default branch name
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.2983107Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.2984332Z hint: to use in all of your new repositories, which will suppress this warning,
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.2985414Z hint: call:
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3092053Z hint:
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3093467Z hint: 	git config --global init.defaultBranch <name>
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3094810Z hint:
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3096424Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3099430Z hint: 'development'. The just-created branch can be renamed via this command:
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3101247Z hint:
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3102249Z hint: 	git branch -m <name>
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3103286Z hint:
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3104849Z hint: Disable this message with "git config set advice.defaultBranchName false"
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3107645Z Initialized empty Git repository in /home/runner/work/lrc-db-builder/lrc-db-builder/.git/
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3110687Z [command]/usr/bin/git remote add origin https://github.com/ryyr-ry/lrc-db-builder
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3113684Z ##[endgroup]
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3115783Z ##[group]Disabling automatic garbage collection
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3117267Z [command]/usr/bin/git config --local gc.auto 0
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3118776Z ##[endgroup]
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3119825Z ##[group]Setting up auth
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3120550Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3124210Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3351496Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3375276Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3538619Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3562234Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3746625Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3774164Z ##[endgroup]
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3775051Z ##[group]Fetching the repository
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.3782519Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +19449fac53aac4e49fca88c0d18aeab0e6fd90d5:refs/remotes/origin/main
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.5637672Z From https://github.com/ryyr-ry/lrc-db-builder
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.5639202Z  * [new ref]         19449fac53aac4e49fca88c0d18aeab0e6fd90d5 -> origin/main
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.5662184Z ##[endgroup]
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.5662949Z ##[group]Determining the checkout info
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.5664118Z ##[endgroup]
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.5669693Z [command]/usr/bin/git sparse-checkout disable
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.5701973Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.5721542Z ##[group]Checking out the ref
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.5725221Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.5759055Z Switched to a new branch 'main'
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.5760602Z branch 'main' set up to track 'origin/main'.
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.5765886Z ##[endgroup]
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.5792060Z [command]/usr/bin/git log -1 --format=%H
+build-lrclib-synced	Run actions/checkout@v4	2026-02-22T07:48:08.5809056Z 19449fac53aac4e49fca88c0d18aeab0e6fd90d5
+build-lrclib-synced	Free disk space	・ｿ2026-02-22T07:48:08.5979394Z ##[group]Run echo "=== Before cleanup ==="
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.5980117Z [36;1mecho "=== Before cleanup ==="[0m
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.5980634Z [36;1mdf -h /[0m
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.5981050Z [36;1m[0m
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.5981462Z [36;1msudo rm -rf /usr/share/dotnet[0m
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.5982024Z [36;1msudo rm -rf /usr/local/lib/android[0m
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.5982578Z [36;1msudo rm -rf /opt/ghc[0m
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.5983068Z [36;1msudo rm -rf /usr/share/swift[0m
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.5983830Z [36;1msudo rm -rf /usr/local/share/boost[0m
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.5984385Z [36;1msudo rm -rf /usr/local/graalvm[0m
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.5984964Z [36;1msudo rm -rf /usr/local/share/chromium[0m
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.5985577Z [36;1msudo rm -rf /usr/local/share/powershell[0m
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.5986198Z [36;1msudo rm -rf /opt/hostedtoolcache[0m
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.5986821Z [36;1msudo docker system prune -af 2>/dev/null || true[0m
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.5987800Z [36;1msudo apt-get clean[0m
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.5988306Z [36;1m[0m
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.5988698Z [36;1mecho "=== After cleanup ==="[0m
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.5989197Z [36;1mdf -h /[0m
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.6011210Z shell: /usr/bin/bash -e {0}
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.6011793Z ##[endgroup]
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.6070770Z === Before cleanup ===
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.6193875Z Filesystem      Size  Used Avail Use% Mounted on
+build-lrclib-synced	Free disk space	2026-02-22T07:48:08.6195129Z /dev/root       145G   53G   92G  37% /
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3208835Z Deleted Images:
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3210445Z untagged: ghcr.io/dependabot/dependabot-updater-core:latest
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3211525Z untagged: ghcr.io/dependabot/dependabot-updater-core@sha256:57ef9cc45f72cc4258ee1baa8243bc3cd55c0a0e570b6768c37346247be35f0d
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3212556Z deleted: sha256:b72a662c47e31df2e7bf59368b2b83be239f02a1baa721393717711a1a719df9
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3213091Z deleted: sha256:3e13ccd80f19769f39008cfc6549938e1ea4905f47b028c1df2dd6085191386c
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3213634Z deleted: sha256:842807995a512b2c5a9b241a3aecdbe79af6b0642d96fa5460cfcf0c9d8be295
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3214163Z deleted: sha256:0f9074b9f46f4570eb7cb4b65fcb3c3d909f9b1d14ca66b30508117b6deda303
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3214691Z deleted: sha256:2ca99cb9251d19157c56b5d91c8961bb4b35196a5ca9b4ffdccbf24abbfe2a5f
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3215303Z deleted: sha256:535fcb113c4b97ab7b30223a641ec9fe4e61f83da661e4c03061e57ddf66154b
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3215804Z deleted: sha256:87f194f3ea0057c627b5c2b315354b864b7c080c3127548268215678a5138aa2
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3216338Z deleted: sha256:52cc52781c0edd477236dc18ed2175a9e615c3f981617b5250d1d749340f059e
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3216846Z deleted: sha256:2f1511ec9d45e89896017cb71df122554705128f1ed2010aed4323b2ff636e49
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3217551Z deleted: sha256:323686803c09c979a781e4326c9238b093722696c461a239ef3a5bc66531a956
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3218179Z deleted: sha256:52b6c27d536ab79de0c0774dc6a72ebaaa722e1ca6ea168b1387a845fee2f6b1
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3218915Z deleted: sha256:d40ad6eb2c3dc0900578a7b8d6adc44b15e6fe0df46d931b895c85a1b6cf9b0a
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3219734Z deleted: sha256:123a078714d5ea9382d4d9f550753aefce8b34ec5ae11ae8273038d3bcbb943f
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3220169Z 
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3288528Z Total reclaimed space: 789.7MB
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3605012Z === After cleanup ===
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3616139Z Filesystem      Size  Used Avail Use% Mounted on
+build-lrclib-synced	Free disk space	2026-02-22T07:49:12.3616719Z /dev/root       145G   27G  118G  19% /
+build-lrclib-synced	Install tools	・ｿ2026-02-22T07:49:12.3666127Z ##[group]Run sudo apt-get update -qq
+build-lrclib-synced	Install tools	2026-02-22T07:49:12.3666484Z [36;1msudo apt-get update -qq[0m
+build-lrclib-synced	Install tools	2026-02-22T07:49:12.3666796Z [36;1msudo apt-get install -y -qq sqlite3 brotli aria2[0m
+build-lrclib-synced	Install tools	2026-02-22T07:49:12.3687763Z shell: /usr/bin/bash -e {0}
+build-lrclib-synced	Install tools	2026-02-22T07:49:12.3688035Z ##[endgroup]
+build-lrclib-synced	Set dump URL	・ｿ2026-02-22T07:49:22.2753255Z ##[group]Run URL="https://db-dumps.lrclib.net/lrclib-db-dump-20260122T091251Z.sqlite3.gz"
+build-lrclib-synced	Set dump URL	2026-02-22T07:49:22.2753920Z [36;1mURL="https://db-dumps.lrclib.net/lrclib-db-dump-20260122T091251Z.sqlite3.gz"[0m
+build-lrclib-synced	Set dump URL	2026-02-22T07:49:22.2754345Z [36;1mecho "url=$URL" >> $GITHUB_OUTPUT[0m
+build-lrclib-synced	Set dump URL	2026-02-22T07:49:22.2754630Z [36;1mecho "Dump URL: $URL"[0m
+build-lrclib-synced	Set dump URL	2026-02-22T07:49:22.2773330Z shell: /usr/bin/bash -e {0}
+build-lrclib-synced	Set dump URL	2026-02-22T07:49:22.2773629Z ##[endgroup]
+build-lrclib-synced	Set dump URL	2026-02-22T07:49:22.2809134Z Dump URL: https://db-dumps.lrclib.net/lrclib-db-dump-20260122T091251Z.sqlite3.gz
+build-lrclib-synced	Download dump	・ｿ2026-02-22T07:49:22.2849455Z ##[group]Run echo "Downloading from: https://db-dumps.lrclib.net/lrclib-db-dump-20260122T091251Z.sqlite3.gz"
+build-lrclib-synced	Download dump	2026-02-22T07:49:22.2850197Z [36;1mecho "Downloading from: https://db-dumps.lrclib.net/lrclib-db-dump-20260122T091251Z.sqlite3.gz"[0m
+build-lrclib-synced	Download dump	2026-02-22T07:49:22.2850813Z [36;1mWORK_DIR="$HOME/lrclib-build"[0m
+build-lrclib-synced	Download dump	2026-02-22T07:49:22.2851074Z [36;1mmkdir -p "$WORK_DIR"[0m
+build-lrclib-synced	Download dump	2026-02-22T07:49:22.2851331Z [36;1mecho "WORK_DIR=$WORK_DIR" >> $GITHUB_ENV[0m
+build-lrclib-synced	Download dump	2026-02-22T07:49:22.2851587Z [36;1m[0m
+build-lrclib-synced	Download dump	2026-02-22T07:49:22.2851805Z [36;1maria2c -x 16 -s 16 --summary-interval=30 \[0m
+build-lrclib-synced	Download dump	2026-02-22T07:49:22.2852100Z [36;1m  -d "$WORK_DIR" -o dump.sqlite3.gz \[0m
+build-lrclib-synced	Download dump	2026-02-22T07:49:22.2852496Z [36;1m  "https://db-dumps.lrclib.net/lrclib-db-dump-20260122T091251Z.sqlite3.gz"[0m
+build-lrclib-synced	Download dump	2026-02-22T07:49:22.2852852Z [36;1m[0m
+build-lrclib-synced	Download dump	2026-02-22T07:49:22.2853048Z [36;1mls -lh "$WORK_DIR/dump.sqlite3.gz"[0m
+build-lrclib-synced	Download dump	2026-02-22T07:49:22.2853318Z [36;1mecho "=== Disk after download ==="[0m
+build-lrclib-synced	Download dump	2026-02-22T07:49:22.2853554Z [36;1mdf -h /[0m
+build-lrclib-synced	Download dump	2026-02-22T07:49:22.2869338Z shell: /usr/bin/bash -e {0}
+build-lrclib-synced	Download dump	2026-02-22T07:49:22.2869579Z ##[endgroup]
+build-lrclib-synced	Download dump	2026-02-22T07:49:22.2901204Z Downloading from: https://db-dumps.lrclib.net/lrclib-db-dump-20260122T091251Z.sqlite3.gz
+build-lrclib-synced	Download dump	2026-02-22T07:49:22.5376268Z 
+build-lrclib-synced	Download dump	2026-02-22T07:49:22.5377164Z 02/22 07:49:22 [[1;32mNOTICE[0m] Downloading 1 item(s)
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2488073Z [#ed93fa 32MiB/19GiB(0%) CN:16 DL:50MiB ETA:6m35s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2490155Z [#ed93fa 147MiB/19GiB(0%) CN:16 DL:90MiB ETA:3m40s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2490632Z [#ed93fa 403MiB/19GiB(2%) CN:16 DL:153MiB ETA:2m8s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2491064Z [#ed93fa 648MiB/19GiB(3%) CN:16 DL:179MiB ETA:1m48s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2491692Z [#ed93fa 910MiB/19GiB(4%) CN:16 DL:197MiB ETA:1m37s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2492156Z [#ed93fa 1.1GiB/19GiB(5%) CN:16 DL:205MiB ETA:1m32s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2492638Z [#ed93fa 1.3GiB/19GiB(6%) CN:16 DL:209MiB ETA:1m29s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2493074Z [#ed93fa 1.5GiB/19GiB(7%) CN:16 DL:210MiB ETA:1m27s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2493538Z [#ed93fa 1.7GiB/19GiB(9%) CN:16 DL:214MiB ETA:1m25s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2494042Z [#ed93fa 2.0GiB/19GiB(10%) CN:16 DL:218MiB ETA:1m22s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2494523Z [#ed93fa 2.2GiB/19GiB(11%) CN:16 DL:238MiB ETA:1m14s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2495045Z [#ed93fa 2.5GiB/19GiB(12%) CN:16 DL:244MiB ETA:1m11s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2495545Z [#ed93fa 2.7GiB/19GiB(14%) CN:16 DL:243MiB ETA:1m10s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2496051Z [#ed93fa 3.0GiB/19GiB(15%) CN:16 DL:244MiB ETA:1m9s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2496549Z [#ed93fa 3.2GiB/19GiB(16%) CN:16 DL:244MiB ETA:1m8s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2497262Z [#ed93fa 3.5GiB/19GiB(17%) CN:16 DL:249MiB ETA:1m6s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2497800Z [#ed93fa 3.7GiB/19GiB(19%) CN:16 DL:252MiB ETA:1m4s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2498289Z [#ed93fa 4.0GiB/19GiB(20%) CN:16 DL:253MiB ETA:1m3s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2498769Z [#ed93fa 4.2GiB/19GiB(21%) CN:16 DL:250MiB ETA:1m3s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2499543Z [#ed93fa 4.4GiB/19GiB(22%) CN:16 DL:250MiB ETA:1m2s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2500243Z [#ed93fa 4.6GiB/19GiB(23%) CN:16 DL:249MiB ETA:1m1s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2500948Z [#ed93fa 4.9GiB/19GiB(25%) CN:16 DL:250MiB ETA:59s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2501555Z [#ed93fa 5.1GiB/19GiB(26%) CN:16 DL:248MiB ETA:59s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2502290Z [#ed93fa 5.3GiB/19GiB(27%) CN:16 DL:243MiB ETA:59s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2502747Z [#ed93fa 5.6GiB/19GiB(28%) CN:16 DL:243MiB ETA:58s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2503192Z [#ed93fa 5.8GiB/19GiB(29%) CN:16 DL:237MiB ETA:59s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2503653Z [#ed93fa 6.0GiB/19GiB(30%) CN:16 DL:230MiB ETA:1m]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2504143Z [#ed93fa 6.2GiB/19GiB(31%) CN:16 DL:232MiB ETA:59s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2504636Z [#ed93fa 6.4GiB/19GiB(32%) CN:16 DL:229MiB ETA:58s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2505119Z [#ed93fa 6.6GiB/19GiB(34%) CN:16 DL:228MiB ETA:57s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2505680Z  *** Download Progress Summary as of Sun Feb 22 07:49:53 2026 *** 
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2506250Z ===============================================================================
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2506755Z [#ed93fa 6.8GiB/19GiB(35%) CN:16 DL:224MiB ETA:58s]
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2507751Z FILE: /home/runner/lrclib-build/dump.sqlite3.gz
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2508321Z -------------------------------------------------------------------------------
+build-lrclib-synced	Download dump	2026-02-22T07:49:53.2508955Z 
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8740954Z [#ed93fa 6.8GiB/19GiB(35%) CN:16 DL:224MiB ETA:58s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8741600Z [#ed93fa 7.1GiB/19GiB(36%) CN:16 DL:229MiB ETA:55s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8742135Z [#ed93fa 7.4GiB/19GiB(37%) CN:16 DL:238MiB ETA:52s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8742566Z [#ed93fa 7.6GiB/19GiB(39%) CN:16 DL:236MiB ETA:51s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8743078Z [#ed93fa 7.9GiB/19GiB(40%) CN:16 DL:238MiB ETA:50s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8743625Z [#ed93fa 8.2GiB/19GiB(41%) CN:16 DL:251MiB ETA:46s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8744143Z [#ed93fa 8.4GiB/19GiB(43%) CN:16 DL:257MiB ETA:44s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8744662Z [#ed93fa 8.7GiB/19GiB(44%) CN:16 DL:257MiB ETA:43s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8745158Z [#ed93fa 8.8GiB/19GiB(45%) CN:16 DL:250MiB ETA:44s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8745609Z [#ed93fa 9.0GiB/19GiB(46%) CN:16 DL:252MiB ETA:42s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8746165Z [#ed93fa 9.2GiB/19GiB(47%) CN:16 DL:246MiB ETA:42s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8746695Z [#ed93fa 9.4GiB/19GiB(48%) CN:16 DL:237MiB ETA:43s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8747416Z [#ed93fa 9.7GiB/19GiB(49%) CN:16 DL:234MiB ETA:43s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8747917Z [#ed93fa 9.9GiB/19GiB(50%) CN:16 DL:229MiB ETA:43s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8748354Z [#ed93fa 10GiB/19GiB(51%) CN:16 DL:222MiB ETA:43s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8748883Z [#ed93fa 10GiB/19GiB(52%) CN:16 DL:219MiB ETA:43s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8749384Z [#ed93fa 10GiB/19GiB(54%) CN:16 DL:222MiB ETA:41s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8749916Z [#ed93fa 10GiB/19GiB(55%) CN:16 DL:231MiB ETA:38s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8750427Z [#ed93fa 11GiB/19GiB(56%) CN:16 DL:233MiB ETA:37s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8750951Z [#ed93fa 11GiB/19GiB(57%) CN:16 DL:227MiB ETA:37s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8751457Z [#ed93fa 11GiB/19GiB(58%) CN:16 DL:228MiB ETA:36s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8751942Z [#ed93fa 11GiB/19GiB(59%) CN:16 DL:227MiB ETA:35s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8752465Z [#ed93fa 11GiB/19GiB(60%) CN:16 DL:224MiB ETA:35s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8752979Z [#ed93fa 12GiB/19GiB(61%) CN:16 DL:228MiB ETA:33s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8753514Z [#ed93fa 12GiB/19GiB(62%) CN:16 DL:212MiB ETA:35s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8754026Z [#ed93fa 12GiB/19GiB(64%) CN:16 DL:226MiB ETA:31s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8754569Z [#ed93fa 12GiB/19GiB(65%) CN:16 DL:228MiB ETA:30s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8755124Z [#ed93fa 13GiB/19GiB(67%) CN:16 DL:236MiB ETA:27s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8755641Z [#ed93fa 13GiB/19GiB(68%) CN:16 DL:244MiB ETA:26s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8756272Z [#ed93fa 13GiB/19GiB(69%) CN:16 DL:246MiB ETA:24s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8757010Z  *** Download Progress Summary as of Sun Feb 22 07:50:25 2026 *** 
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8757646Z ===============================================================================
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8758221Z [#ed93fa 13GiB/19GiB(70%) CN:16 DL:169MiB ETA:35s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8758764Z FILE: /home/runner/lrclib-build/dump.sqlite3.gz
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8759392Z -------------------------------------------------------------------------------
+build-lrclib-synced	Download dump	2026-02-22T07:50:25.8759886Z 
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0129921Z [#ed93fa 13GiB/19GiB(70%) CN:16 DL:169MiB ETA:35s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0130403Z [#ed93fa 14GiB/19GiB(73%) CN:16 DL:222MiB ETA:24s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0130869Z [#ed93fa 14GiB/19GiB(74%) CN:16 DL:209MiB ETA:24s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0131342Z [#ed93fa 14GiB/19GiB(75%) CN:16 DL:207MiB ETA:23s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0131812Z [#ed93fa 15GiB/19GiB(77%) CN:16 DL:208MiB ETA:21s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0132260Z [#ed93fa 15GiB/19GiB(78%) CN:16 DL:206MiB ETA:21s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0132700Z [#ed93fa 15GiB/19GiB(79%) CN:16 DL:207MiB ETA:19s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0133154Z [#ed93fa 15GiB/19GiB(80%) CN:16 DL:311MiB ETA:12s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0133630Z [#ed93fa 16GiB/19GiB(82%) CN:16 DL:310MiB ETA:11s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0134064Z [#ed93fa 16GiB/19GiB(83%) CN:16 DL:303MiB ETA:10s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0134334Z [#ed93fa 16GiB/19GiB(84%) CN:16 DL:297MiB ETA:10s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0134593Z [#ed93fa 16GiB/19GiB(85%) CN:16 DL:254MiB ETA:11s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0135112Z [#ed93fa 17GiB/19GiB(87%) CN:16 DL:255MiB ETA:10s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0135375Z [#ed93fa 17GiB/19GiB(88%) CN:16 DL:249MiB ETA:9s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0135658Z [#ed93fa 17GiB/19GiB(89%) CN:16 DL:245MiB ETA:8s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0136043Z [#ed93fa 17GiB/19GiB(90%) CN:16 DL:253MiB ETA:7s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0136303Z [#ed93fa 18GiB/19GiB(92%) CN:16 DL:252MiB ETA:6s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0136570Z [#ed93fa 18GiB/19GiB(93%) CN:16 DL:252MiB ETA:5s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0136829Z [#ed93fa 18GiB/19GiB(94%) CN:16 DL:243MiB ETA:4s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0137303Z [#ed93fa 18GiB/19GiB(95%) CN:16 DL:238MiB ETA:3s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0137560Z [#ed93fa 18GiB/19GiB(96%) CN:16 DL:238MiB ETA:2s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0137824Z [#ed93fa 19GiB/19GiB(97%) CN:16 DL:232MiB ETA:2s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0138105Z [#ed93fa 19GiB/19GiB(98%) CN:15 DL:224MiB ETA:1s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0138368Z [#ed93fa 19GiB/19GiB(98%) CN:13 DL:216MiB ETA:1s]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0138631Z [#ed93fa 19GiB/19GiB(99%) CN:13 DL:197MiB]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0138889Z [#ed93fa 19GiB/19GiB(99%) CN:13 DL:175MiB]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0139129Z [#ed93fa 19GiB/19GiB(99%) CN:1 DL:158MiB]
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0139288Z 
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0139785Z 02/22 07:50:55 [[1;32mNOTICE[0m] Download complete: /home/runner/lrclib-build/dump.sqlite3.gz
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0140188Z 
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0140303Z Download Results:
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0140522Z gid   |stat|avg speed  |path/URI
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0140780Z ======+====+===========+=======================================================
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0141138Z ed93fa|OK  |   226MiB/s|/home/runner/lrclib-build/dump.sqlite3.gz
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0141366Z 
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0141447Z Status Legend:
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0141627Z (OK):download completed.
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0830102Z -rw-r--r-- 1 runner runner 20G Feb 22 07:50 /home/runner/lrclib-build/dump.sqlite3.gz
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0830887Z === Disk after download ===
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0843493Z Filesystem      Size  Used Avail Use% Mounted on
+build-lrclib-synced	Download dump	2026-02-22T07:50:55.0845590Z /dev/root       145G   47G   98G  33% /
+build-lrclib-synced	Decompress dump	・ｿ2026-02-22T07:50:55.0876269Z ##[group]Run cd "$WORK_DIR"
+build-lrclib-synced	Decompress dump	2026-02-22T07:50:55.0876542Z [36;1mcd "$WORK_DIR"[0m
+build-lrclib-synced	Decompress dump	2026-02-22T07:50:55.0876829Z [36;1mecho "Decompressing (this may take a while)..."[0m
+build-lrclib-synced	Decompress dump	2026-02-22T07:50:55.0877323Z [36;1mgunzip dump.sqlite3.gz[0m
+build-lrclib-synced	Decompress dump	2026-02-22T07:50:55.0877573Z [36;1mls -lh dump.sqlite3[0m
+build-lrclib-synced	Decompress dump	2026-02-22T07:50:55.0877819Z [36;1mecho "=== Disk after decompress ==="[0m
+build-lrclib-synced	Decompress dump	2026-02-22T07:50:55.0878078Z [36;1mdf -h /[0m
+build-lrclib-synced	Decompress dump	2026-02-22T07:50:55.0903365Z shell: /usr/bin/bash -e {0}
+build-lrclib-synced	Decompress dump	2026-02-22T07:50:55.0903611Z env:
+build-lrclib-synced	Decompress dump	2026-02-22T07:50:55.0903798Z   WORK_DIR: /home/runner/lrclib-build
+build-lrclib-synced	Decompress dump	2026-02-22T07:50:55.0904049Z ##[endgroup]
+build-lrclib-synced	Decompress dump	2026-02-22T07:50:55.0935967Z Decompressing (this may take a while)...
+build-lrclib-synced	Decompress dump	2026-02-22T07:59:45.4243542Z -rw-r--r-- 1 runner runner 78G Feb 22 07:50 dump.sqlite3
+build-lrclib-synced	Decompress dump	2026-02-22T07:59:45.4244306Z === Disk after decompress ===
+build-lrclib-synced	Decompress dump	2026-02-22T07:59:45.4257656Z Filesystem      Size  Used Avail Use% Mounted on
+build-lrclib-synced	Decompress dump	2026-02-22T07:59:45.4258344Z /dev/root       145G  105G   40G  73% /
+build-lrclib-synced	Inspect DB structure	・ｿ2026-02-22T07:59:45.4281754Z ##[group]Run cd "$WORK_DIR"
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.4282033Z [36;1mcd "$WORK_DIR"[0m
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.4282238Z [36;1mecho "=== Tables ==="[0m
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.4282495Z [36;1msqlite3 dump.sqlite3 ".tables"[0m
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.4282760Z [36;1mecho "=== Schema (first 50 lines) ==="[0m
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.4283059Z [36;1msqlite3 dump.sqlite3 ".schema" | head -50[0m
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.4283328Z [36;1mecho "=== Row count ==="[0m
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.4283669Z [36;1m# 繝・・繝悶Ν蜷阪ｒ閾ｪ蜍墓､懷・・・racks, track, lyrics 遲芽､・焚縺ｮ蜿ｯ閭ｽ諤ｧ縺ｫ蟇ｾ蠢懶ｼ・[0m
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.4284037Z [36;1mTABLE=$(sqlite3 dump.sqlite3 ".tables" | tr -s ' ' '\n' | head -1)[0m
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.4284377Z [36;1mecho "Primary table: $TABLE"[0m
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.4284677Z [36;1msqlite3 dump.sqlite3 "SELECT COUNT(*) FROM $TABLE;"[0m
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.4284971Z [36;1mecho "=== Sample columns ==="[0m
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.4285295Z [36;1msqlite3 dump.sqlite3 "PRAGMA table_info($TABLE);" | head -20[0m
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.4310957Z shell: /usr/bin/bash -e {0}
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.4311262Z env:
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.4311454Z   WORK_DIR: /home/runner/lrclib-build
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.4311845Z ##[endgroup]
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.4345594Z === Tables ===
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5386527Z _litestream_lock    lyrics              tracks_fts          tracks_fts_docsize
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5387412Z _litestream_seq     missing_tracks      tracks_fts_config   tracks_fts_idx    
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5388045Z flags               tracks              tracks_fts_data   
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5389537Z === Schema (first 50 lines) ===
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5611804Z CREATE TABLE tracks (
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5612411Z   id INTEGER PRIMARY KEY AUTOINCREMENT,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5612842Z   name TEXT,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5613100Z   name_lower TEXT,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5613394Z   artist_name TEXT,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5613709Z   artist_name_lower TEXT,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5614060Z   album_name TEXT,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5614368Z   album_name_lower TEXT,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5614711Z   duration FLOAT,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5615039Z   last_lyrics_id INTEGER,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5615386Z   created_at DATETIME,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5615704Z   updated_at DATETIME,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5616064Z   FOREIGN KEY (last_lyrics_id) REFERENCES lyrics (id),
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5616658Z   UNIQUE(name_lower, artist_name_lower, album_name_lower, duration)
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5617299Z );
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5617586Z CREATE TABLE sqlite_sequence(name,seq);
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5617977Z CREATE TABLE lyrics (
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5618316Z   id INTEGER PRIMARY KEY AUTOINCREMENT,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5618703Z   plain_lyrics TEXT,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5619013Z   synced_lyrics TEXT,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5619307Z   track_id INTEGER,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5619629Z   has_plain_lyrics BOOLEAN,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5619971Z   has_synced_lyrics BOOLEAN,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5620304Z   instrumental BOOLEAN,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5620598Z   source TEXT,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5620876Z   created_at DATETIME,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5621202Z   updated_at DATETIME,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5621595Z   FOREIGN KEY (track_id) REFERENCES tracks (id)
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5622018Z );
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5622306Z CREATE TRIGGER set_tracks_last_lyrics_id
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5622722Z AFTER INSERT ON lyrics
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5623022Z BEGIN
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5623463Z   UPDATE tracks SET last_lyrics_id = NEW.id WHERE tracks.id = NEW.track_id;
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5624043Z END;
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5624341Z CREATE VIRTUAL TABLE tracks_fts USING fts5(
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5624769Z   name_lower,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5625017Z   album_name_lower,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5625300Z   artist_name_lower,
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5625601Z   content='tracks',
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5625898Z   content_rowid='id'
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5626183Z )
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5626596Z /* tracks_fts(name_lower,album_name_lower,artist_name_lower) */;
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5627517Z CREATE TABLE IF NOT EXISTS 'tracks_fts_data'(id INTEGER PRIMARY KEY, block BLOB);
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5628488Z CREATE TABLE IF NOT EXISTS 'tracks_fts_idx'(segid, term, pgno, PRIMARY KEY(segid, term)) WITHOUT ROWID;
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5629772Z CREATE TABLE IF NOT EXISTS 'tracks_fts_docsize'(id INTEGER PRIMARY KEY, sz BLOB);
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5630601Z CREATE TABLE IF NOT EXISTS 'tracks_fts_config'(k PRIMARY KEY, v) WITHOUT ROWID;
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5631244Z CREATE TRIGGER tracks_ai AFTER INSERT ON tracks
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5631637Z BEGIN
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5632101Z   INSERT INTO tracks_fts (rowid, name_lower, album_name_lower, artist_name_lower)
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5632947Z   VALUES (new.id, new.name_lower, new.album_name_lower, new.artist_name_lower);
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5633529Z === Row count ===
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5640660Z Primary table: _litestream_lock
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5655890Z 0
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5657605Z === Sample columns ===
+build-lrclib-synced	Inspect DB structure	2026-02-22T07:59:45.5674344Z 0|id|INTEGER|0||0
+build-lrclib-synced	Extract synced-only records	・ｿ2026-02-22T07:59:45.5706090Z ##[group]Run cd "$WORK_DIR"
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5706556Z [36;1mcd "$WORK_DIR"[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5706858Z [36;1m[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5707333Z [36;1mecho "Extracting synced lyrics..."[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5707786Z [36;1msqlite3 dump.sqlite3 <<'SQL'[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5708462Z [36;1mATTACH DATABASE 'lrclib_synced.db' AS out;[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5708985Z [36;1m[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5709304Z [36;1mCREATE TABLE out.lyrics ([0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5709704Z [36;1m  id INTEGER PRIMARY KEY,[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5710075Z [36;1m  track_name TEXT NOT NULL,[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5710482Z [36;1m  artist_name TEXT NOT NULL,[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5710957Z [36;1m  album_name TEXT,[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5711320Z [36;1m  duration REAL,[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5711676Z [36;1m  synced_lyrics TEXT NOT NULL[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5712053Z [36;1m);[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5712311Z [36;1m[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5712879Z [36;1mINSERT INTO out.lyrics (id, track_name, artist_name, album_name, duration, synced_lyrics)[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5713832Z [36;1m  SELECT id, trackName, artistName, albumName, duration, syncedLyrics[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5714463Z [36;1m  FROM tracks[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5714924Z [36;1m  WHERE syncedLyrics IS NOT NULL AND syncedLyrics != '';[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5715449Z [36;1m[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5715735Z [36;1m-- 讀懃ｴ｢逕ｨ繧､繝ｳ繝・ャ繧ｯ繧ｹ[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5716247Z [36;1mCREATE INDEX out.idx_artist_track ON lyrics(artist_name, track_name);[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5717086Z [36;1mCREATE INDEX out.idx_track ON lyrics(track_name);[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5717530Z [36;1mSQL[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5717802Z [36;1m[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5718032Z [36;1m# 邨ｱ險郁｡ｨ遉ｺ[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5718482Z [36;1mTOTAL=$(sqlite3 dump.sqlite3 "SELECT COUNT(*) FROM tracks;")[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5719235Z [36;1mSYNCED=$(sqlite3 lrclib_synced.db "SELECT COUNT(*) FROM lyrics;")[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5719899Z [36;1mecho "========================================"[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5720410Z [36;1mecho "  Total records in dump:   $TOTAL"[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5720936Z [36;1mecho "  Synced records extracted: $SYNCED"[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5721431Z [36;1mecho "========================================"[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5721847Z [36;1m[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5722139Z [36;1mls -lh lrclib_synced.db[0m
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5749989Z shell: /usr/bin/bash -e {0}
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5750357Z env:
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5750641Z   WORK_DIR: /home/runner/lrclib-build
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5751038Z ##[endgroup]
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5795447Z Extracting synced lyrics...
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5830624Z Parse error near line 12: no such column: trackName
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5831344Z   album_name, duration, synced_lyrics)   SELECT id, trackName, artistName, album
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5831964Z                                       error here ---^
+build-lrclib-synced	Extract synced-only records	2026-02-22T07:59:45.5865036Z ##[error]Process completed with exit code 1.
+build-lrclib-synced	Post Run actions/checkout@v4	・ｿ2026-02-22T07:59:45.6059853Z Post job cleanup.
+build-lrclib-synced	Post Run actions/checkout@v4	2026-02-22T07:59:45.7690247Z [command]/usr/bin/git version
+build-lrclib-synced	Post Run actions/checkout@v4	2026-02-22T07:59:45.7732156Z git version 2.52.0
+build-lrclib-synced	Post Run actions/checkout@v4	2026-02-22T07:59:45.7775344Z Temporarily overriding HOME='/home/runner/work/_temp/2170e751-b4bb-4ccf-b0f6-6452b2f60294' before making global git config changes
+build-lrclib-synced	Post Run actions/checkout@v4	2026-02-22T07:59:45.7776216Z Adding repository directory to the temporary git global config as a safe directory
+build-lrclib-synced	Post Run actions/checkout@v4	2026-02-22T07:59:45.7780709Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/lrc-db-builder/lrc-db-builder
+build-lrclib-synced	Post Run actions/checkout@v4	2026-02-22T07:59:45.7812417Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+build-lrclib-synced	Post Run actions/checkout@v4	2026-02-22T07:59:45.7840143Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build-lrclib-synced	Post Run actions/checkout@v4	2026-02-22T07:59:45.8027351Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build-lrclib-synced	Post Run actions/checkout@v4	2026-02-22T07:59:45.8044030Z http.https://github.com/.extraheader
+build-lrclib-synced	Post Run actions/checkout@v4	2026-02-22T07:59:45.8054218Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+build-lrclib-synced	Post Run actions/checkout@v4	2026-02-22T07:59:45.8078497Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build-lrclib-synced	Post Run actions/checkout@v4	2026-02-22T07:59:45.8254847Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build-lrclib-synced	Post Run actions/checkout@v4	2026-02-22T07:59:45.8284088Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build-lrclib-synced	Complete job	・ｿ2026-02-22T07:59:45.8572885Z Cleaning up orphan processes
