@@ -8,9 +8,9 @@ on:
   workflow_dispatch: # 手動実行
     inputs:
       dump_url:
-        description: "lrclib dump URL (空欄なら最新を自動取得)"
+        description: "lrclib dump URL"
         required: false
-        default: ""
+        default: "https://db-dumps.lrclib.net/lrclib-db-dump-20260122T091251Z.sqlite3.gz"
 
 jobs:
   build-lrclib-synced:
@@ -56,28 +56,12 @@ jobs:
       # -------------------------------------------------------
       # 3. lrclib ダンプのダウンロード
       # -------------------------------------------------------
-      - name: Determine dump URL
+      - name: Set dump URL
         id: dump-url
         run: |
-          if [ -n "${{ github.event.inputs.dump_url }}" ]; then
-            echo "url=${{ github.event.inputs.dump_url }}" >> $GITHUB_OUTPUT
-          else
-            # lrclib のダンプページから最新のURLを取得
-            # ページ構造が変わった場合は手動入力にフォールバック
-            DUMP_URL=$(curl -sL https://lrclib.net/db-dumps \
-              | grep -oP 'href="\K[^"]*\.sqlite3\.gz' \
-              | head -1)
-            if [ -z "$DUMP_URL" ]; then
-              echo "::error::ダンプURLを自動取得できませんでした。手動で指定してください。"
-              exit 1
-            fi
-            # 相対URLの場合は絶対URLに変換
-            if [[ ! "$DUMP_URL" == http* ]]; then
-              DUMP_URL="https://lrclib.net${DUMP_URL}"
-            fi
-            echo "url=$DUMP_URL" >> $GITHUB_OUTPUT
-          fi
-          echo "Dump URL: $(cat $GITHUB_OUTPUT | grep url)"
+          URL="${{ github.event.inputs.dump_url || 'https://db-dumps.lrclib.net/lrclib-db-dump-20260122T091251Z.sqlite3.gz' }}"
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "Dump URL: $URL"
 
       - name: Download dump
         run: |
