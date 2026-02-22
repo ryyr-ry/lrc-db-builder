@@ -72,6 +72,11 @@ jobs:
           sudo apt-get install -y -qq --no-install-recommends \
             sqlite3 aria2 isal zstd
 
+          echo "Building Rust filter..."
+          cd $GITHUB_WORKSPACE
+          cargo build --release --bin filter-lrclib 2>&1 | tail -5
+          ls -lh target/release/filter-lrclib
+
       # -------------------------------------------------------
       # 2. ダウンロード (aria2c 16並列, ~90秒)
       # -------------------------------------------------------
@@ -192,8 +197,8 @@ jobs:
       - name: Filter
         run: |
           cd "$WORK"
-          echo "Running filter script..."
-          time python3 -u $GITHUB_WORKSPACE/scripts/filter_lyrics.py \
+          echo "Running Rust filter..."
+          time $GITHUB_WORKSPACE/target/release/filter-lrclib \
             lrclib_synced.db lrclib_filtered.db
 
           echo "Removing raw DB..."
@@ -208,7 +213,7 @@ jobs:
         run: |
           cd "$WORK"
           echo "Compressing with zstd..."
-          time zstd -19 --rm lrclib_filtered.db -o lrclib_filtered.db.zst
+          time zstd -19 -T0 --rm lrclib_filtered.db -o lrclib_filtered.db.zst
 
           echo "========================================"
           echo "  Compressed: $(ls -lh lrclib_filtered.db.zst | awk '{print $5}')"
