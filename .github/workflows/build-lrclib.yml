@@ -66,12 +66,8 @@ jobs:
       - name: Download dump
         run: |
           echo "Downloading from: ${{ steps.dump-url.outputs.url }}"
-          # /mnt に十分な空きがあればそちらを使う
-          WORK_DIR="/mnt"
-          if [ $(df --output=avail /mnt | tail -1) -lt 10000000 ]; then
-            WORK_DIR="/tmp/lrclib-work"
-            mkdir -p "$WORK_DIR"
-          fi
+          WORK_DIR="$HOME/work"
+          mkdir -p "$WORK_DIR"
           echo "WORK_DIR=$WORK_DIR" >> $GITHUB_ENV
 
           wget -q --show-progress -O "$WORK_DIR/dump.sqlite3.gz" \
@@ -79,7 +75,6 @@ jobs:
           ls -lh "$WORK_DIR/dump.sqlite3.gz"
           echo "=== Disk after download ==="
           df -h /
-          df -h /mnt || true
 
       # -------------------------------------------------------
       # 4. 展開
