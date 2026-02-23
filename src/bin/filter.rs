@@ -91,10 +91,10 @@ fn main() {
 
     // プリコンパイル正規表現
     let re_ts = Regex::new(r"\[[\d:.]+\]").unwrap();
-    let re_paren = Regex::new(r"[\(\（].*?[\)\）]").unwrap();
+    let re_paren = Regex::new(r"[(（].*?[)）]").unwrap();
     let re_non_word = Regex::new(r"[^\w]").unwrap();
     let re_symbol = Regex::new(r"[^\w\s]").unwrap();
-    let re_bracket = Regex::new(r"\s*[\(\[（【].+?[\)\]）】]").unwrap();
+    let re_bracket = Regex::new(r"\s*[(（\[【].+?[)）\]】]").unwrap();
     let re_feat = Regex::new(r"(?i)\s*(feat|ft|with)\s+.*$").unwrap();
 
     // 入力DB
