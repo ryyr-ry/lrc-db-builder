@@ -20,6 +20,9 @@ use std::time::Instant;
 // ============================================================
 
 fn classify_lang(text_no_ts: &str) -> Option<&'static str> {
+    // NOTE: len() はバイト長。CJKテキストでは1文字3バイトなので
+    // 30バイト ≈ 10文字。Python版の30文字より緩いが、短すぎるテキストの
+    // 除外が目的なので問題ない。
     if text_no_ts.len() < 30 {
         return None;
     }
@@ -52,9 +55,10 @@ fn classify_lang(text_no_ts: &str) -> Option<&'static str> {
 
 fn normalize_name(name: &str, re_symbol: &Regex, re_bracket: &Regex, re_feat: &Regex) -> String {
     let n = name.to_lowercase();
-    let n = re_symbol.replace_all(&n, "");
+    // bracket除去を先に (re_symbolが括弧を消す前に処理する)
     let n = re_bracket.replace_all(&n, "");
     let n = re_feat.replace_all(&n, "");
+    let n = re_symbol.replace_all(&n, "");
     n.split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
@@ -62,9 +66,9 @@ fn normalize_name(name: &str, re_symbol: &Regex, re_bracket: &Regex, re_feat: &R
 // 歌詞フィンガープリント
 // ============================================================
 
-fn lyrics_fingerprint(lyrics: &str, re_ts: &Regex, re_paren: &Regex, re_non_word: &Regex) -> Option<[u8; 16]> {
-    let text = re_ts.replace_all(lyrics, "");
-    let text = re_paren.replace_all(&text, "");
+/// text_no_ts: タイムスタンプ除去済みのテキスト（品質チェックで既に計算済み）
+fn lyrics_fingerprint(text_no_ts: &str, re_paren: &Regex, re_non_word: &Regex) -> Option<[u8; 16]> {
+    let text = re_paren.replace_all(text_no_ts, "");
     let text = re_non_word.replace_all(&text, "");
     let text = text.to_lowercase();
     if text.is_empty() { return None; }
@@ -91,7 +95,7 @@ fn main() {
 
     // プリコンパイル正規表現
     let re_ts = Regex::new(r"\[[\d:.]+\]").unwrap();
-    let re_paren = Regex::new(r"[(（].*?[)）]").unwrap();
+    let re_paren = Regex::new(r"[(（][^()（）]*[)）]").unwrap();
     let re_non_word = Regex::new(r"[^\w]").unwrap();
     let re_symbol = Regex::new(r"[^\w\s]").unwrap();
     let re_bracket = Regex::new(r"\s*[(（\[【].+?[)）\]】]").unwrap();
@@ -163,18 +167,19 @@ fn main() {
             None => { stats[1] += 1; continue; }
         };
 
-        // 3. 歌詞フィンガープリント dedup
-        if let Some(fp) = lyrics_fingerprint(&lyrics, &re_ts, &re_paren, &re_non_word) {
+        // 3. 歌詞フィンガープリント dedup (text_no_ts を再利用して re_ts 二重実行を回避)
+        if let Some(fp) = lyrics_fingerprint(&text_no_ts, &re_paren, &re_non_word) {
             if !fp_seen.insert(fp) {
                 stats[2] += 1; continue;
             }
         }
 
         // 4. メタデータ dedup
+        // duration バケット: 10秒単位 (±5秒以内を同一曲とみなす)
         let meta_key = format!("{}\t{}\t{}",
             normalize_name(&artist, &re_symbol, &re_bracket, &re_feat),
             normalize_name(&track, &re_symbol, &re_bracket, &re_feat),
-            ((dur.unwrap_or(0.0) / 30.0).round() as i64),
+            ((dur.unwrap_or(0.0) / 10.0).round() as i64),
         );
 
         if let Some((prev_id, prev_lines)) = meta_seen.get(&meta_key) {
